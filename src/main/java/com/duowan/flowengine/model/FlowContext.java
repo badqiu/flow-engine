@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
+import com.duowan.flowengine.engine.FlowEngine;
+
 /**
  * 流程执行的上下文
  * 
@@ -13,7 +15,8 @@ import java.util.concurrent.ExecutorService;
  */
 public class FlowContext {
 
-	private ExecutorService executorService;
+	private transient ExecutorService executorService;
+	private transient FlowEngine flowEngine;
 	private Map params; // 流程参数
 	private Flow flow; // 流程
 	private List<String> visitedTaskCodes = new ArrayList<String>(); //已经访问过的流程任务节点
@@ -48,6 +51,14 @@ public class FlowContext {
 
 	public void setVisitedTaskCodes(List<String> visitedTaskCodes) {
 		this.visitedTaskCodes = visitedTaskCodes;
+	}
+
+	public FlowEngine getFlowEngine() {
+		return flowEngine;
+	}
+
+	public void setFlowEngine(FlowEngine flowEngine) {
+		this.flowEngine = flowEngine;
 	}
 	
 }

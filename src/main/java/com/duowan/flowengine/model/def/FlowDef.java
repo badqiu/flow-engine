@@ -15,9 +15,13 @@ import com.duowan.flowengine.model.Flow;
  *
  */
 public class FlowDef {
-	private String flowCode;
-	private String flowName;
-	private String remarks;
+	private String flowCode; //流程代码
+	private String flowName; //名称
+	private String remarks; //备注
+	/**
+	 * flow是否激活
+	 */
+	private boolean enabled;
 	/**
 	 * 最大并行度 db_column: max_parallel
 	 */
@@ -57,7 +61,12 @@ public class FlowDef {
 	public void setProps(Map props) {
 		this.props = props;
 	}
-	
+	public boolean isEnabled() {
+		return enabled;
+	}
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 	public Flow newInstance() {
 		String instanceId = DateConvertUtils.format(new Date(), "yyyyMMddHHmmss");
 		Flow result = new Flow(getFlowCode(),instanceId);

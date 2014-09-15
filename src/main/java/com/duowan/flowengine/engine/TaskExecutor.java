@@ -6,6 +6,6 @@ import com.duowan.flowengine.model.FlowTask;
 
 public interface TaskExecutor {
 
-	public void exec(FlowTask task,Map params);
+	public void exec(FlowTask task,Map params,FlowEngine engine);
 	
 }

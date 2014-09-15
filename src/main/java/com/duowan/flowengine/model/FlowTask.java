@@ -126,8 +126,8 @@ public class FlowTask extends FlowTaskDef{
 		while(true) {
 			try {
 				status = "RUNNING";
-				if(getSleepTime() > 0) {
-					Thread.sleep(getSleepTime());
+				if(getPreSleepTime() > 0) {
+					Thread.sleep(getPreSleepTime());
 				}
 				
 				long start = System.currentTimeMillis();
@@ -137,7 +137,7 @@ public class FlowTask extends FlowTaskDef{
 //						executor.exec(flowTask,context.getParams());
 //					}
 //				}
-				executor.exec(flowTask,context.getParams());
+				executor.exec(flowTask,context.getParams(),context.getFlowEngine());
 				
 				waitIfRunning(executor, context, flowTask);
 				

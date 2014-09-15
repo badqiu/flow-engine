@@ -17,7 +17,7 @@ import com.duowan.flowengine.model.def.FlowDef;
  *
  */
 public class Flow extends FlowDef{
-	private String instanceId;
+	private String instanceId; //实例ID
 	private String status; //任务状态: 可运行,运行中,阻塞(睡眠,等待),停止
 	private int execResult; //执行结果: 0成功,非0为失败
 

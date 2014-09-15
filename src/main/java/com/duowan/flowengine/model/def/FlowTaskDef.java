@@ -8,7 +8,7 @@ import com.duowan.common.util.DateConvertUtils;
 import com.duowan.flowengine.model.FlowTask;
 
 /**
- * 流程任务 定义
+ * 流程中的任务 定义
  * 
  * @author badqiu
  *
@@ -31,7 +31,7 @@ public class FlowTaskDef {
 	/**
      * 任务执行前睡眠等待时间(秒)       db_column: sleep_time 
      */ 	
-	private java.lang.Integer sleepTime;	
+	private int preSleepTime;	
 	/**
 	 * 任务执行超时时间,单位(秒)
 	 */
@@ -43,7 +43,7 @@ public class FlowTaskDef {
     /**
      * 要运行的程序脚本       db_column: program 
      */ 	
-	private java.lang.String program;
+	private String program;
 	
     /**
      * 要运行的程序类型(java_class,bat,shell,shell_script,url,hive_sql,jdbc_sql,java_main,groovy)       db_column: program_type 
@@ -126,11 +126,11 @@ public class FlowTaskDef {
 	public void setIgnoreError(boolean isIgnoreError) {
 		this.isIgnoreError = isIgnoreError;
 	}
-	public java.lang.Integer getSleepTime() {
-		return sleepTime;
+	public int getPreSleepTime() {
+		return preSleepTime;
 	}
-	public void setSleepTime(java.lang.Integer sleepTime) {
-		this.sleepTime = sleepTime;
+	public void setPreSleepTime(int sleepTime) {
+		this.preSleepTime = sleepTime;
 	}
 	public int getTimeout() {
 		return timeout;

@@ -47,6 +47,7 @@ public class FlowEngine {
 		ExecutorService es = Executors.newFixedThreadPool(flow.getMaxParallel());
 		context.setExecutorService(es);
 		context.setFlow(flow);
+		context.setFlowEngine(this);
 		return context;
 	}
 
