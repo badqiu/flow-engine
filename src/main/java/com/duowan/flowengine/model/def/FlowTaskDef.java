@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.duowan.common.beanutils.PropertyUtils;
 import com.duowan.common.util.DateConvertUtils;
+import com.duowan.flowengine.engine.TaskExecutor;
 import com.duowan.flowengine.model.FlowTask;
 
 /**
@@ -29,7 +30,7 @@ public class FlowTaskDef {
      */ 	
 	private boolean isIgnoreError;
 	/**
-     * 任务执行前睡眠等待时间(秒)       db_column: sleep_time 
+     * 任务执行前睡眠等待时间(秒) 
      */ 	
 	private int preSleepTime;	
 	/**
@@ -40,11 +41,22 @@ public class FlowTaskDef {
 	 * 在那一台agent(机器)执行程序
 	 */
 	private String execAgent;
+	/**
+	 * 在任务执行之前,执行的groovy脚本
+	 */
+	private String beforeGroovy;
+	/**
+	 * 在任务执行之后,执行的groovy脚本
+	 */
+	private String afterGroovy;
+	/**
+	 * 在任务执行发生异常后,执行的groovy脚本
+	 */
+	private String errorGroovy;
     /**
      * 要运行的程序脚本       db_column: program 
      */ 	
 	private String program;
-	
     /**
      * 要运行的程序类型(java_class,bat,shell,shell_script,url,hive_sql,jdbc_sql,java_main,groovy)       db_column: program_type 
      */ 	
@@ -156,6 +168,9 @@ public class FlowTaskDef {
 	public void setProgramClass(java.lang.String programClass) {
 		this.programClass = programClass;
 	}
+	public void setProgramClass(Class<? extends TaskExecutor> clazz) {
+		setProgramClass(clazz.getName());
+	}
 	public java.util.Date getOfflineTime() {
 		return offlineTime;
 	}
@@ -183,11 +198,51 @@ public class FlowTaskDef {
 	public void setDepends(String depends) {
 		this.depends = depends;
 	}
+	
+	public String getBeforeGroovy() {
+		return beforeGroovy;
+	}
 
-	public FlowTask newInstance(String flowInstanceId) {
+	public void setBeforeGroovy(String preGroovy) {
+		this.beforeGroovy = preGroovy;
+	}
+
+	public String getAfterGroovy() {
+		return afterGroovy;
+	}
+
+	public void setAfterGroovy(String afterGroovy) {
+		this.afterGroovy = afterGroovy;
+	}
+
+	public String getErrorGroovy() {
+		return errorGroovy;
+	}
+
+	public void setErrorGroovy(String exceptionGroovy) {
+		this.errorGroovy = exceptionGroovy;
+	}
+
+	public FlowTask newInstance(String batchId) {
 		String instanceId = DateConvertUtils.format(new Date(), "yyyyMMddHHmmss");
-		FlowTask result = new FlowTask(getFlowCode(),getTaskCode(),instanceId,flowInstanceId);
+		FlowTask result = new FlowTask(getFlowCode(),getTaskCode(),instanceId,batchId);
 		PropertyUtils.copyProperties(result, this);
 		return result;
 	}
+
+	@Override
+	public String toString() {
+		return "FlowTaskDef [flowCode=" + flowCode + ", taskCode=" + taskCode
+				+ ", taskModule=" + taskModule + ", taskName=" + taskName
+				+ ", remarks=" + remarks + ", enabled=" + enabled
+				+ ", retryTimes=" + retryTimes + ", retryInterval="
+				+ retryInterval + ", isIgnoreError=" + isIgnoreError
+				+ ", preSleepTime=" + preSleepTime + ", timeout=" + timeout
+				+ ", execAgent=" + execAgent + ", program=" + program
+				+ ", programClass=" + programClass + ", offlineTime="
+				+ offlineTime + ", priority=" + priority + ", props=" + props
+				+ ", depends=" + depends + "]";
+	}
+	
+	
 }

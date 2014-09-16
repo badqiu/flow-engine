@@ -1,13 +1,11 @@
 package com.duowan.flowengine.engine;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.util.Assert;
 
@@ -19,7 +17,7 @@ public class FlowEngine {
 
 	public static String DEFAULT_START_TASK_CODE = "start";
 	
-	Set<Flow> flows = new HashSet<Flow> ();
+	private Set<Flow> flows = new HashSet<Flow> ();
 	
 	public void exec(String flowCode,Map params) {
 		exec(flowCode,DEFAULT_START_TASK_CODE,params);
@@ -30,6 +28,16 @@ public class FlowEngine {
 		exec(flow,startTaskCode, params);
 	}
 
+	public void exec(Flow flow, Map params) {
+		exec(flow, DEFAULT_START_TASK_CODE, params);
+	}
+	
+	public void exec(Flow flow,List<FlowTask> tasks, Map params) {
+		Assert.isTrue(flow.getMaxParallel() > 0,"flow.getMaxParallel() > 0 must be true");
+		FlowContext context = newFlowContext(params, flow);
+		FlowTask.execAll(context, false, true, tasks);
+	}
+	
 	public void exec(Flow flow,String startTaskCode, Map params) {
 		Assert.isTrue(flow.getMaxParallel() > 0,"flow.getMaxParallel() > 0 must be true");
 		FlowContext context = newFlowContext(params, flow);

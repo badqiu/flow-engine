@@ -1,15 +1,18 @@
 package com.duowan.flowengine.model;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
+import com.duowan.common.util.ScriptEngineUtil;
 import com.duowan.flowengine.engine.AsyncTaskExecutor;
 import com.duowan.flowengine.engine.TaskExecutor;
 import com.duowan.flowengine.model.def.FlowTaskDef;
@@ -54,66 +57,25 @@ public class FlowTask extends FlowTaskDef{
 	}
 	
 	public void exec(final FlowContext context,final boolean execParents,final boolean execChilds) {
-		execDepends(context, execParents, execChilds);
+		if(execParents) {
+			execAll(context,execParents, execChilds,getParentsTask());
+		}
 		
 		try {
 			execSelf(context);
 		} catch (Exception e) {
-			throw new RuntimeException("error on execSelf",e);
+			throw new RuntimeException("error on exec,flowTask:"+this,e);
 		} 
 		
-		execChilds(context, execParents, execChilds);
-	}
-
-	private void execChilds(final FlowContext context,
-			final boolean execParents, final boolean execChilds) {
 		if(execChilds) {
-			Set<FlowTask> childs = getChildsTask();
-			for(final FlowTask child : childs) {
-				context.getExecutorService().execute(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							child.exec(context,execParents,execChilds);
-						}catch(Exception e) {
-							e.printStackTrace();
-						}
-					}
-				});
-			}
-		}
-	}
-
-	private void execDepends(final FlowContext context,
-			final boolean execParents, final boolean execChilds) {
-		Set<FlowTask> depends = getDependsTask();
-		if(execParents && !depends.isEmpty()) {
-			final CountDownLatch dependsCountDownLatch = new CountDownLatch(depends.size());
-			for(final FlowTask depend : depends) {
-				context.getExecutorService().execute(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							depend.exec(context,execParents,execChilds);
-						}catch(Exception e) {
-							e.printStackTrace();
-						}finally {
-							dependsCountDownLatch.countDown();
-						}
-					}
-				});
-			}
-			try {
-				dependsCountDownLatch.await();
-			} catch (InterruptedException e) {
-				throw new RuntimeException("interrupt",e);
-			}
+			execAll(context,execParents, execChilds,getChildsTask());
 		}
 	}
 
 	private void execSelf(final FlowContext context) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException,
 			InterruptedException, IOException {
+		Assert.hasText(getProgramClass(),"programClass must be not empty");
 		if(context.getVisitedTaskCodes().contains(getTaskCode())) {
 			return;
 		}
@@ -123,6 +85,7 @@ public class FlowTask extends FlowTaskDef{
 		
 		TaskExecutor executor = (TaskExecutor)Class.forName(getProgramClass()).newInstance();
 		execStartTime = new Date();
+		evalGroovy(context,getBeforeGroovy());
 		while(true) {
 			try {
 				status = "RUNNING";
@@ -155,20 +118,32 @@ public class FlowTask extends FlowTaskDef{
 				break;
 			}catch(Exception e) {
 				this.lastException = e;
-				this.usedRetryTimes = this.usedRetryTimes + 1;
-				if(this.usedRetryTimes > getRetryTimes()) {
+				if(this.usedRetryTimes >= getRetryTimes()) {
 					break;
 				}
 				
 				Assert.isTrue(getRetryInterval() > 0," getRetryInterval() > 0 must be true");
 				status = "SLEEP";
+				this.usedRetryTimes = this.usedRetryTimes + 1;
 				Thread.sleep(getRetryInterval());
 			}
 		}
+		
+		if(this.lastException != null) {
+			evalGroovy(context,getErrorGroovy());
+		}
+		
 		if(executor instanceof AsyncTaskExecutor) {
 			this.taskLog = IOUtils.toString(((AsyncTaskExecutor)executor).getLog(flowTask, context.getParams()));
 		}
+		evalGroovy(context,getAfterGroovy());
 		this.status = "END";
+	}
+
+	private void evalGroovy(final FlowContext context,String script) {
+		if(StringUtils.isNotBlank(script)) {
+			ScriptEngineUtil.eval("groovy", script, context.getParams());
+		}
 	}
 
 	private void waitIfRunning(TaskExecutor executor,final FlowContext context,final FlowTask flowTask) throws InterruptedException {
@@ -187,11 +162,11 @@ public class FlowTask extends FlowTaskDef{
 		return getPriority();
 	}
 
-	private Set<FlowTask> getChildsTask() {
+	public Set<FlowTask> getChildsTask() {
 		return childs;
 	}
 
-	private Set<FlowTask> getDependsTask() {
+	public Set<FlowTask> getParentsTask() {
 		return parents;
 	}
 
@@ -201,5 +176,34 @@ public class FlowTask extends FlowTaskDef{
 
 	public void addParent(FlowTask t) {
 		parents.add(t);
+	}
+	
+	
+	
+	public static void execAll(final FlowContext context, final boolean execParents,final boolean execChilds, Collection<FlowTask> tasks) {
+		if(CollectionUtils.isEmpty(tasks)) {
+			return;
+		}
+		
+		final CountDownLatch dependsCountDownLatch = new CountDownLatch(tasks.size());
+		for(final FlowTask depend : tasks) {
+			context.getExecutorService().execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						depend.exec(context,execParents,execChilds);
+					}catch(Exception e) {
+						e.printStackTrace();
+					}finally {
+						dependsCountDownLatch.countDown();
+					}
+				}
+			});
+		}
+		try {
+			dependsCountDownLatch.await();
+		} catch (InterruptedException e) {
+			throw new RuntimeException("interrupt",e);
+		}
 	}
 }

@@ -1,10 +1,11 @@
 package com.duowan.flowengine.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.duowan.flowengine.model.def.Edge;
@@ -30,6 +31,30 @@ public class Flow extends FlowDef{
 		setFlowCode(flowCode);
 	}
 	
+	public String getInstanceId() {
+		return instanceId;
+	}
+
+	public void setInstanceId(String instanceId) {
+		this.instanceId = instanceId;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public int getExecResult() {
+		return execResult;
+	}
+
+	public void setExecResult(int execResult) {
+		this.execResult = execResult;
+	}
+
 	public Set<FlowTask> getTasks() {
 		return tasks;
 	}
@@ -44,6 +69,20 @@ public class Flow extends FlowDef{
 
 	public void setEdges(Set<Edge> edges) {
 		this.edges = edges;
+	}
+	
+	/**
+	 * 证明没有依赖其它任何任务的任务,可作为任务入口
+	 * @return
+	 */
+	public List<FlowTask> getNoParentsTasks() {
+		List<FlowTask> result = new ArrayList<FlowTask>();
+		for(FlowTask t : tasks) {
+			if(CollectionUtils.isEmpty(t.getParentsTask())) {
+				result.add(t);
+			}
+		}
+		return result;
 	}
 
 	public FlowTask getTask(String taskCode) {
@@ -65,8 +104,13 @@ public class Flow extends FlowDef{
 	
 	public void addFlowTask(FlowTask t) {
 		t.setFlowCode(getFlowCode());
-		addDepends(t.getTaskCode(), t.getDepends());
 		tasks.add(t);
+	}
+	
+	public void addFlowTaskWithDepends(FlowTask t) {
+		t.setFlowCode(getFlowCode());
+		tasks.add(t);
+		addDepends(t.getTaskCode(), t.getDepends());
 	}
 	
 	/**
