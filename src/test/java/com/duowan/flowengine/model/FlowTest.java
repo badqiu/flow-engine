@@ -41,10 +41,11 @@ public class FlowTest {
 	}
 	
 	@Test
-	public void testWithNoParentsTasks() {
+	public void testWithNoParentsTasks() throws InterruptedException {
 		Map params = new HashMap();
 		FlowEngine engien = new FlowEngine();
 		engien.exec(f, f.getNoParentsTasks(), params);
+		Thread.sleep(1000 * 30);
 	}
 
 }

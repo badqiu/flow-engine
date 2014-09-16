@@ -58,7 +58,7 @@ public class FlowTask extends FlowTaskDef{
 	
 	public void exec(final FlowContext context,final boolean execParents,final boolean execChilds) {
 		if(execParents) {
-			execAll(context,execParents, execChilds,getParentsTask());
+			execAll(context,execParents, execChilds,getParentsTask(),true);
 		}
 		
 		try {
@@ -68,7 +68,7 @@ public class FlowTask extends FlowTaskDef{
 		} 
 		
 		if(execChilds) {
-			execAll(context,execParents, execChilds,getChildsTask());
+			execAll(context,execParents, execChilds,getChildsTask(),false);
 		}
 	}
 
@@ -114,6 +114,8 @@ public class FlowTask extends FlowTaskDef{
 					throw new RuntimeException("execResult not zero,execResult:"+this.execResult);
 				}
 				
+				evalGroovy(context,getAfterGroovy());
+				
 				this.execCostTime = System.currentTimeMillis() - start;
 				break;
 			}catch(Exception e) {
@@ -136,7 +138,7 @@ public class FlowTask extends FlowTaskDef{
 		if(executor instanceof AsyncTaskExecutor) {
 			this.taskLog = IOUtils.toString(((AsyncTaskExecutor)executor).getLog(flowTask, context.getParams()));
 		}
-		evalGroovy(context,getAfterGroovy());
+		
 		this.status = "END";
 	}
 
@@ -180,7 +182,7 @@ public class FlowTask extends FlowTaskDef{
 	
 	
 	
-	public static void execAll(final FlowContext context, final boolean execParents,final boolean execChilds, Collection<FlowTask> tasks) {
+	public static void execAll(final FlowContext context, final boolean execParents,final boolean execChilds, Collection<FlowTask> tasks,boolean waitExecEnd) {
 		if(CollectionUtils.isEmpty(tasks)) {
 			return;
 		}
@@ -200,10 +202,12 @@ public class FlowTask extends FlowTaskDef{
 				}
 			});
 		}
-		try {
-			dependsCountDownLatch.await();
-		} catch (InterruptedException e) {
-			throw new RuntimeException("interrupt",e);
+		if(waitExecEnd) {
+			try {
+				dependsCountDownLatch.await();
+			} catch (InterruptedException e) {
+				throw new RuntimeException("interrupt",e);
+			}
 		}
 	}
 }

@@ -35,7 +35,7 @@ public class FlowEngine {
 	public void exec(Flow flow,List<FlowTask> tasks, Map params) {
 		Assert.isTrue(flow.getMaxParallel() > 0,"flow.getMaxParallel() > 0 must be true");
 		FlowContext context = newFlowContext(params, flow);
-		FlowTask.execAll(context, false, true, tasks);
+		FlowTask.execAll(context, false, true, tasks,true);
 	}
 	
 	public void exec(Flow flow,String startTaskCode, Map params) {
