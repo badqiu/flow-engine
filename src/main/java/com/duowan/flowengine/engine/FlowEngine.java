@@ -15,38 +15,34 @@ import com.duowan.flowengine.model.FlowTask;
 
 public class FlowEngine {
 
-	public static String DEFAULT_START_TASK_CODE = "start";
-	
 	private Set<Flow> flows = new HashSet<Flow> ();
 	
-	public void exec(String flowCode,Map params) {
-		exec(flowCode,DEFAULT_START_TASK_CODE,params);
-	}
-	
-	public void exec(String flowCode,String startTaskCode,Map params) {
-		Flow flow = getRequiredFlow(flowCode,params);
-		exec(flow,startTaskCode, params);
+	public FlowContext exec(String flowCode,String startTaskCode,Map params) {
+		Flow flow = getRequiredFlow(flowCode);
+		return exec(flow,startTaskCode, params);
 	}
 
-	public void exec(Flow flow, Map params) {
-		exec(flow, DEFAULT_START_TASK_CODE, params);
-	}
-	
-	public void exec(Flow flow,List<FlowTask> tasks, Map params) {
+	public FlowContext exec(Flow flow,List<FlowTask> tasks, Map params) {
 		Assert.isTrue(flow.getMaxParallel() > 0,"flow.getMaxParallel() > 0 must be true");
 		FlowContext context = newFlowContext(params, flow);
 		FlowTask.execAll(context, false, true, tasks,true);
+		return context;
 	}
 	
-	public void exec(Flow flow,String startTaskCode, Map params) {
+	public FlowContext exec(Flow flow, Map params) {
+		return exec(flow,flow.getNoParentsTasks(),params);
+	}
+	
+	public FlowContext exec(Flow flow,String startTaskCode, Map params) {
 		Assert.isTrue(flow.getMaxParallel() > 0,"flow.getMaxParallel() > 0 must be true");
 		FlowContext context = newFlowContext(params, flow);
-		exec(flow, startTaskCode, context);
+		return exec(flow, startTaskCode, context);
 	}
 
-	public void exec(Flow flow, String startTaskCode, FlowContext context) {
+	public FlowContext exec(Flow flow, String startTaskCode, FlowContext context) {
 		FlowTask task = flow.getTask(startTaskCode);
 		task.exec(context,false,true);
+		return context;
 	}
 
 	private FlowContext newFlowContext(Map params, Flow flow) {
@@ -58,8 +54,12 @@ public class FlowEngine {
 		context.setFlowEngine(this);
 		return context;
 	}
+	
+	public void addFlow(Flow flow) {
+		flows.add(flow);
+	}
 
-	private Flow getFlow(String flowCode,Map params) {
+	public Flow getFlow(String flowCode) {
 		for(Flow f : flows) {
 			if(f.getFlowCode().equals(flowCode)) {
 				return f;
@@ -68,8 +68,8 @@ public class FlowEngine {
 		return null;
 	}
 	
-	private Flow getRequiredFlow(String flowCode,Map params) {
-		Flow flow = getFlow(flowCode,params);
+	public Flow getRequiredFlow(String flowCode) {
+		Flow flow = getFlow(flowCode);
 		if(flow == null) {
 			throw new RuntimeException("not found flow by code:"+flowCode);
 		}

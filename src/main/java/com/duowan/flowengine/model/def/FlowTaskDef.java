@@ -1,5 +1,6 @@
 package com.duowan.flowengine.model.def;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import com.duowan.flowengine.model.FlowTask;
  * @author badqiu
  *
  */
-public class FlowTaskDef {
+public class FlowTaskDef implements Serializable{
 	private String flowCode;//流程代码
 	private String taskCode;//任务代码
 	
@@ -77,6 +78,33 @@ public class FlowTaskDef {
 	 * 依赖的任务
 	 */
 	private String depends;
+	/**
+	 * 最大并行度(控制子任务的并发执行度) db_column: max_parallel
+	 */
+	private java.lang.Integer maxParallel;
+	/**
+	 * cron表达式
+	 */
+	private String cron;
+	/**
+	 * 创建时间
+	 */
+	private Date createdTime;
+	/**
+	 * 创建人
+	 */
+	private Date creator;
+	/**
+	 * 最后操作人
+	 */
+	private Date operator;
+	/**
+	 * 最后修改时间
+	 */
+	private Date modifiedTime;
+	
+	public FlowTaskDef() {
+	}
 	
 	public FlowTaskDef(String flowCode, String taskCode) {
 		super();
@@ -222,12 +250,45 @@ public class FlowTaskDef {
 	public void setErrorGroovy(String exceptionGroovy) {
 		this.errorGroovy = exceptionGroovy;
 	}
+	
+	public java.lang.Integer getMaxParallel() {
+		return maxParallel;
+	}
 
-	public FlowTask newInstance(String batchId) {
-		String instanceId = DateConvertUtils.format(new Date(), "yyyyMMddHHmmss");
-		FlowTask result = new FlowTask(getFlowCode(),getTaskCode(),instanceId,batchId);
-		PropertyUtils.copyProperties(result, this);
-		return result;
+	public void setMaxParallel(java.lang.Integer maxParallel) {
+		this.maxParallel = maxParallel;
+	}
+
+	public String getCron() {
+		return cron;
+	}
+
+	public void setCron(String cron) {
+		this.cron = cron;
+	}
+
+	public Date getCreatedTime() {
+		return createdTime;
+	}
+
+	public void setCreatedTime(Date createdTime) {
+		this.createdTime = createdTime;
+	}
+
+	public Date getOperator() {
+		return operator;
+	}
+
+	public void setOperator(Date operator) {
+		this.operator = operator;
+	}
+
+	public Date getModifiedTime() {
+		return modifiedTime;
+	}
+
+	public void setModifiedTime(Date modifiedTime) {
+		this.modifiedTime = modifiedTime;
 	}
 
 	@Override

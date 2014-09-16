@@ -2,6 +2,8 @@ package com.duowan.flowengine.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,24 +15,38 @@ import com.duowan.flowengine.model.def.FlowTaskDef;
 
 public class FlowTest {
 
-	private FlowDef def = new FlowDef();
-	Flow f = null;
+	private Flow f = new Flow();
 	@Before
 	public void setUp() {
-		def.setFlowCode("demo_flow");
-		def.setMaxParallel(3);
-		f = def.newInstance();
+		f.setFlowCode("demo_flow");
+		f.setMaxParallel(3);
 		
-		FlowTaskDef startTask = new FlowTaskDef(def.getFlowCode(),"start");
+		FlowTask startTask = new FlowTask("start");
 		startTask.setProgramClass(NothingTaskExecutor.class);
-		f.addFlowTaskWithDepends(startTask.newInstance(f.getInstanceId()));
+		f.addFlowTask(startTask);
 		
 		for(int i = 0; i < 10; i++) {
-			FlowTaskDef taskDef = new FlowTaskDef(def.getFlowCode(),"demo_task_"+i);
-			taskDef.setDepends("start");
+			FlowTask taskDef = new FlowTask("demo_task_"+i);
+			taskDef.setDepends("start"); //依赖start任务
 			taskDef.setProgramClass(SystemOutTaskExecutor.class);
-			f.addFlowTaskWithDepends(taskDef.newInstance(f.getInstanceId()));
+			f.addFlowTask(taskDef);
 		}
+		
+		//初始化Flow
+		f.init();
+	}
+	
+	@Test
+	public void testWithNoParentsTasks() throws InterruptedException {
+		//流程执行参数
+		Map params = new HashMap();
+		
+		// 创建流程执行引擎,并从没有任何依赖的入口任务开始执行
+		FlowEngine engien = new FlowEngine();
+		FlowContext context = engien.exec(f, f.getNoParentsTasks(), params);
+		
+		//等待流程执行完成
+		context.awaitTermination(1000, TimeUnit.HOURS);
 	}
 	
 	@Test
@@ -38,14 +54,6 @@ public class FlowTest {
 		Map params = new HashMap();
 		FlowEngine engien = new FlowEngine();
 		engien.exec(f,params);
-	}
-	
-	@Test
-	public void testWithNoParentsTasks() throws InterruptedException {
-		Map params = new HashMap();
-		FlowEngine engien = new FlowEngine();
-		engien.exec(f, f.getNoParentsTasks(), params);
-		Thread.sleep(1000 * 30);
 	}
 
 }

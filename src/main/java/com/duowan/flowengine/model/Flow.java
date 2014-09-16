@@ -25,6 +25,9 @@ public class Flow extends FlowDef{
 	private Set<FlowTask> tasks = new HashSet<FlowTask>();
 	private Set<Edge> edges = new HashSet<Edge>();
 	
+	public Flow() {
+	}
+	
 	public Flow(String flowCode,String instanceId) {
 		super();
 		this.instanceId = instanceId;
@@ -107,12 +110,16 @@ public class Flow extends FlowDef{
 		tasks.add(t);
 	}
 	
-	public void addFlowTaskWithDepends(FlowTask t) {
-		t.setFlowCode(getFlowCode());
-		tasks.add(t);
-		addDepends(t.getTaskCode(), t.getDepends());
+	public void init() {
+		initDepends();
 	}
 	
+	private void initDepends() {
+		for(FlowTask t : tasks) {
+			addDepends(t.getTaskCode(),t.getDepends());
+		}
+	}
+
 	/**
 	 * 增加任务的依赖
 	 * @param taskCode

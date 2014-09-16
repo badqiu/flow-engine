@@ -1,5 +1,6 @@
 package com.duowan.flowengine.model.def;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import com.duowan.flowengine.model.Flow;
  * @author badqiu
  *
  */
-public class FlowDef {
+public class FlowDef implements Serializable{
 	private String flowCode; //流程代码
 	private String flowName; //名称
 	private String remarks; //备注
@@ -30,6 +31,29 @@ public class FlowDef {
 	 * 附加属性
 	 */
 	private Map props; 
+	/**
+	 * cron表达式
+	 */
+	private String cron;
+	/**
+	 * 创建时间
+	 */
+	private Date createdTime;
+	/**
+	 * 创建人
+	 */
+	private Date creator;
+	/**
+	 * 最后操作人
+	 */
+	private Date operator;
+	/**
+	 * 最后修改时间
+	 */
+	private Date modifiedTime;
+	
+	public FlowDef() {
+	}
 	
 	public String getFlowCode() {
 		return flowCode;
@@ -67,11 +91,4 @@ public class FlowDef {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
-	public Flow newInstance() {
-		String instanceId = DateConvertUtils.format(new Date(), "yyyyMMddHHmmss");
-		Flow result = new Flow(getFlowCode(),instanceId);
-		PropertyUtils.copyProperties(result, this);
-		return result;
-	}
-	
 }

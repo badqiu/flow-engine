@@ -24,7 +24,7 @@ import com.duowan.flowengine.model.def.FlowTaskDef;
 public class FlowTask extends FlowTaskDef{
 
 	private String instanceId; //实例ID
-	private String batchId; //任务执行批次ID,可以使用如( flow instanceId填充)
+	private String flowInstanceId; //任务执行批次ID,可以使用如( flow instanceId填充)
 	
 	private String status; //任务状态: 可运行,运行中,阻塞(睡眠,等待),停止
 	private int execResult = Integer.MIN_VALUE; //执行结果: 0成功,非0为失败
@@ -47,13 +47,30 @@ public class FlowTask extends FlowTaskDef{
 	 */
 	private Throwable lastException;
 	
-	private Set<FlowTask> childs = new LinkedHashSet<FlowTask>();
-	private Set<FlowTask> parents= new LinkedHashSet<FlowTask>();
+	private transient Set<FlowTask> parents= new LinkedHashSet<FlowTask>();
+	private transient Set<FlowTask> childs = new LinkedHashSet<FlowTask>();
 	
-	public FlowTask(String flowCode, String taskCode,String instanceId,String batchId) {
+	public FlowTask() {
+	}
+	
+	public FlowTask(String taskCode) {
+		this(null,taskCode);
+	}
+	
+	public FlowTask(String flowCode, String taskCode) {
+		super(flowCode,taskCode);
+	}
+	
+	public FlowTask(String taskCode,String depends,Class<? extends TaskExecutor> programClass) {
+		this(null,taskCode);
+		setDepends(depends);
+		setProgramClass(programClass);
+	}
+	
+	public FlowTask(String flowCode, String taskCode,String instanceId,String flowInstanceId) {
 		super(flowCode, taskCode);
 		this.instanceId = instanceId;
-		this.batchId = batchId;
+		this.flowInstanceId = flowInstanceId;
 	}
 	
 	public void exec(final FlowContext context,final boolean execParents,final boolean execChilds) {
@@ -179,8 +196,6 @@ public class FlowTask extends FlowTaskDef{
 	public void addParent(FlowTask t) {
 		parents.add(t);
 	}
-	
-	
 	
 	public static void execAll(final FlowContext context, final boolean execParents,final boolean execChilds, Collection<FlowTask> tasks,boolean waitExecEnd) {
 		if(CollectionUtils.isEmpty(tasks)) {
