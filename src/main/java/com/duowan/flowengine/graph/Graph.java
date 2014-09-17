@@ -67,7 +67,8 @@ public class Graph <T extends GraphNode>{
 	}
 	
 	public void addNode(T n) {
-		nodes.add(n);
+		if(!nodes.contains(n)) 
+			nodes.add(n);
 	}
 	
 	/**
@@ -106,7 +107,11 @@ public class Graph <T extends GraphNode>{
 	 * @param id
 	 * @param depends
 	 */
-	private void addEdge(GraphEdge edge) {
+	public void addEdge(GraphEdge edge) {
+		if(edges.contains(edge)) {
+			return;
+		}
+		
 		GraphNode beginNode = getRequiredNode(edge.getBegin());
 		GraphNode endNode = getRequiredNode(edge.getEnd());
 		beginNode.addChild(endNode);

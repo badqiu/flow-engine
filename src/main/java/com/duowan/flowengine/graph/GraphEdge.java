@@ -11,6 +11,8 @@ public class GraphEdge {
 	private String begin;
 	private String end;
 
+//	private int value;
+	
 	public GraphEdge() {
 	}
 

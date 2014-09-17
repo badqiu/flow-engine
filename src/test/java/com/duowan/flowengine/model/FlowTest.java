@@ -27,6 +27,7 @@ public class FlowTest {
 			FlowTask t = new FlowTask("demo_task_"+i);
 			t.setDepends("start"); //依赖start任务
 			t.setProgramClass(SystemOutTaskExecutor.class);
+			t.setPriority(i);
 			f.addNode(t);
 		}
 		

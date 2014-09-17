@@ -1,13 +1,18 @@
 package com.duowan.flowengine.model;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.util.Assert;
 
 import com.duowan.common.util.ScriptEngineUtil;
@@ -19,7 +24,7 @@ import com.duowan.flowengine.model.def.FlowTaskDef;
  * @author badqiu
  *
  */
-public class FlowTask extends FlowTaskDef<FlowTask>{
+public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTask>{
 
 	private String instanceId; //实例ID
 	private String flowInstanceId; //任务执行批次ID,可以使用如( flow instanceId填充)
@@ -93,8 +98,6 @@ public class FlowTask extends FlowTaskDef<FlowTask>{
 		}
 		context.getVisitedTaskCodes().add(getTaskCode());
 		
-		final FlowTask flowTask = this;
-		
 		TaskExecutor executor = (TaskExecutor)Class.forName(getProgramClass()).newInstance();
 		execStartTime = new Date();
 		evalGroovy(context,getBeforeGroovy());
@@ -110,16 +113,12 @@ public class FlowTask extends FlowTaskDef<FlowTask>{
 				
 				long start = System.currentTimeMillis();
 				
-//				if(executor.isAsync()) {
-//					if(!executor.isRunning(flowTask, context.getParams())) {
-//						executor.exec(flowTask,context.getParams());
-//					}
-//				}
-				executor.exec(flowTask,context.getParams(),context.getFlowEngine());
-				waitIfRunning(executor, context, flowTask);
+				executor.exec(this,context.getParams(),context.getFlowEngine());
+				
+				waitIfRunning(executor, context, this);
 				
 				if(executor instanceof AsyncTaskExecutor) {
-					this.execResult = ((AsyncTaskExecutor)executor).getExitCode(flowTask, context.getParams());
+					this.execResult = ((AsyncTaskExecutor)executor).getExitCode(this, context.getParams());
 				}else {
 					this.execResult = 0;
 				}
@@ -127,7 +126,6 @@ public class FlowTask extends FlowTaskDef<FlowTask>{
 				if(execResult != 0) {
 					throw new RuntimeException("execResult not zero,execResult:"+this.execResult);
 				}
-				
 				
 				evalGroovy(context,getAfterGroovy());
 				this.execCostTime = System.currentTimeMillis() - start;
@@ -139,7 +137,7 @@ public class FlowTask extends FlowTaskDef<FlowTask>{
 				}
 				
 				Assert.isTrue(getRetryInterval() > 0," getRetryInterval() > 0 must be true");
-				status = "SLEEP";
+				status = "RETRY";
 				this.usedRetryTimes = this.usedRetryTimes + 1;
 				Thread.sleep(getRetryInterval());
 			}
@@ -150,7 +148,11 @@ public class FlowTask extends FlowTaskDef<FlowTask>{
 		}
 		
 		if(executor instanceof AsyncTaskExecutor) {
-			this.taskLog = IOUtils.toString(((AsyncTaskExecutor)executor).getLog(flowTask, context.getParams()));
+			this.taskLog = IOUtils.toString(((AsyncTaskExecutor)executor).getLog(this, context.getParams()));
+		}else {
+			if(exception != null) {
+				this.taskLog = ExceptionUtils.getFullStackTrace(exception);
+			}
 		}
 		
 		this.status = "END";
@@ -174,8 +176,13 @@ public class FlowTask extends FlowTaskDef<FlowTask>{
 	 * 通过计算得出的权重,如孩子越多,则权重越高,孩子自身的权重可以传递给父亲
 	 * @return
 	 */
-	public int computeWeight() {
+	public int computePriority() {
 		return getPriority();
+	}
+	
+	@Override
+	public int compareTo(FlowTask o) {
+		return -Integer.compare(computePriority(), o.computePriority());
 	}
 
 	public static void execAll(final FlowContext context, final boolean execParents,final boolean execChilds, Collection<FlowTask> tasks,boolean waitTasksExecEnd) {
@@ -185,8 +192,11 @@ public class FlowTask extends FlowTaskDef<FlowTask>{
 		
 		Assert.notNull(context.getExecutorService(),"context.getExecutorService() must be not null");
 		
+		List<FlowTask> sortedTasks = new ArrayList<FlowTask>(tasks);
+		Collections.sort(sortedTasks);
+		
 		final CountDownLatch dependsCountDownLatch = new CountDownLatch(tasks.size());
-		for(final FlowTask depend : tasks) {
+		for(final FlowTask depend : sortedTasks) {
 			context.getExecutorService().execute(new Runnable() {
 				@Override
 				public void run() {

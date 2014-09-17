@@ -1,6 +1,7 @@
 package com.duowan.flowengine.model.def;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
 
@@ -305,6 +306,5 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 				+ offlineTime + ", priority=" + priority + ", props=" + props
 				+ ", depends=" + depends + "]";
 	}
-	
-	
+
 }
