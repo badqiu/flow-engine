@@ -30,7 +30,7 @@ public class FlowEngine {
 	}
 	
 	public FlowContext exec(Flow flow, Map params) {
-		return exec(flow,flow.getNoParentsTasks(),params);
+		return exec(flow,flow.getNoDependNodes(),params);
 	}
 	
 	public FlowContext exec(Flow flow,String startTaskCode, Map params) {
@@ -40,7 +40,7 @@ public class FlowEngine {
 	}
 
 	public FlowContext exec(Flow flow, String startTaskCode, FlowContext context) {
-		FlowTask task = flow.getTask(startTaskCode);
+		FlowTask task = flow.getNode(startTaskCode);
 		task.exec(context,false,true);
 		return context;
 	}

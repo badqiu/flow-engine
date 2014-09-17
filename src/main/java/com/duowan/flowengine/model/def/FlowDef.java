@@ -4,10 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
-import com.duowan.common.beanutils.BeanUtils;
-import com.duowan.common.beanutils.PropertyUtils;
-import com.duowan.common.util.DateConvertUtils;
-import com.duowan.flowengine.model.Flow;
+import com.duowan.flowengine.graph.Graph;
+import com.duowan.flowengine.graph.GraphNode;
 
 /**
  * 流程 定义
@@ -15,7 +13,9 @@ import com.duowan.flowengine.model.Flow;
  * @author badqiu
  *
  */
-public class FlowDef implements Serializable{
+public class FlowDef <T extends GraphNode> extends Graph<T> implements Serializable{
+	private static final long serialVersionUID = 1L;
+	
 	private String flowCode; //流程代码
 	private String flowName; //名称
 	private String remarks; //备注

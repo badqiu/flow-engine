@@ -4,10 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
-import com.duowan.common.beanutils.PropertyUtils;
-import com.duowan.common.util.DateConvertUtils;
 import com.duowan.flowengine.engine.TaskExecutor;
-import com.duowan.flowengine.model.FlowTask;
+import com.duowan.flowengine.graph.GraphNode;
 
 /**
  * 流程中的任务 定义
@@ -15,7 +13,9 @@ import com.duowan.flowengine.model.FlowTask;
  * @author badqiu
  *
  */
-public class FlowTaskDef implements Serializable{
+public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements Serializable{
+	private static final long serialVersionUID = 1L;
+	
 	private String flowCode;//流程代码
 	private String taskCode;//任务代码
 	
@@ -107,7 +107,7 @@ public class FlowTaskDef implements Serializable{
 	}
 	
 	public FlowTaskDef(String flowCode, String taskCode) {
-		super();
+		super(taskCode);
 		this.flowCode = flowCode;
 		this.taskCode = taskCode;
 	}
@@ -123,6 +123,7 @@ public class FlowTaskDef implements Serializable{
 	}
 	public void setTaskCode(String taskCode) {
 		this.taskCode = taskCode;
+		setGraphNodeId(taskCode);
 	}
 	public String getTaskModule() {
 		return taskModule;

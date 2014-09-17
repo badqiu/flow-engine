@@ -3,8 +3,6 @@ package com.duowan.flowengine.model;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -21,7 +19,7 @@ import com.duowan.flowengine.model.def.FlowTaskDef;
  * @author badqiu
  *
  */
-public class FlowTask extends FlowTaskDef{
+public class FlowTask extends FlowTaskDef<FlowTask>{
 
 	private String instanceId; //实例ID
 	private String flowInstanceId; //任务执行批次ID,可以使用如( flow instanceId填充)
@@ -45,10 +43,7 @@ public class FlowTask extends FlowTaskDef{
 	/**
 	 * 最后执行的异常
 	 */
-	private Throwable lastException;
-	
-	private transient Set<FlowTask> parents= new LinkedHashSet<FlowTask>();
-	private transient Set<FlowTask> childs = new LinkedHashSet<FlowTask>();
+	private Throwable exception;
 	
 	public FlowTask() {
 	}
@@ -75,7 +70,7 @@ public class FlowTask extends FlowTaskDef{
 	
 	public void exec(final FlowContext context,final boolean execParents,final boolean execChilds) {
 		if(execParents) {
-			execAll(context,execParents, execChilds,getParentsTask(),true);
+			execAll(context,execParents, execChilds,getParents(),true);
 		}
 		
 		try {
@@ -85,7 +80,7 @@ public class FlowTask extends FlowTaskDef{
 		} 
 		
 		if(execChilds) {
-			execAll(context,execParents, execChilds,getChildsTask(),false);
+			execAll(context,execParents, execChilds,getChilds(),false);
 		}
 	}
 
@@ -103,9 +98,12 @@ public class FlowTask extends FlowTaskDef{
 		TaskExecutor executor = (TaskExecutor)Class.forName(getProgramClass()).newInstance();
 		execStartTime = new Date();
 		evalGroovy(context,getBeforeGroovy());
+		
 		while(true) {
 			try {
 				status = "RUNNING";
+				this.exception = null;
+				
 				if(getPreSleepTime() > 0) {
 					Thread.sleep(getPreSleepTime());
 				}
@@ -118,7 +116,6 @@ public class FlowTask extends FlowTaskDef{
 //					}
 //				}
 				executor.exec(flowTask,context.getParams(),context.getFlowEngine());
-				
 				waitIfRunning(executor, context, flowTask);
 				
 				if(executor instanceof AsyncTaskExecutor) {
@@ -131,12 +128,12 @@ public class FlowTask extends FlowTaskDef{
 					throw new RuntimeException("execResult not zero,execResult:"+this.execResult);
 				}
 				
-				evalGroovy(context,getAfterGroovy());
 				
+				evalGroovy(context,getAfterGroovy());
 				this.execCostTime = System.currentTimeMillis() - start;
 				break;
 			}catch(Exception e) {
-				this.lastException = e;
+				this.exception = e;
 				if(this.usedRetryTimes >= getRetryTimes()) {
 					break;
 				}
@@ -148,7 +145,7 @@ public class FlowTask extends FlowTaskDef{
 			}
 		}
 		
-		if(this.lastException != null) {
+		if(this.execResult != 0) {
 			evalGroovy(context,getErrorGroovy());
 		}
 		
@@ -181,26 +178,12 @@ public class FlowTask extends FlowTaskDef{
 		return getPriority();
 	}
 
-	public Set<FlowTask> getChildsTask() {
-		return childs;
-	}
-
-	public Set<FlowTask> getParentsTask() {
-		return parents;
-	}
-
-	public void addChild(FlowTask t) {
-		childs.add(t);
-	}
-
-	public void addParent(FlowTask t) {
-		parents.add(t);
-	}
-	
-	public static void execAll(final FlowContext context, final boolean execParents,final boolean execChilds, Collection<FlowTask> tasks,boolean waitExecEnd) {
+	public static void execAll(final FlowContext context, final boolean execParents,final boolean execChilds, Collection<FlowTask> tasks,boolean waitTasksExecEnd) {
 		if(CollectionUtils.isEmpty(tasks)) {
 			return;
 		}
+		
+		Assert.notNull(context.getExecutorService(),"context.getExecutorService() must be not null");
 		
 		final CountDownLatch dependsCountDownLatch = new CountDownLatch(tasks.size());
 		for(final FlowTask depend : tasks) {
@@ -217,7 +200,8 @@ public class FlowTask extends FlowTaskDef{
 				}
 			});
 		}
-		if(waitExecEnd) {
+		
+		if(waitTasksExecEnd) {
 			try {
 				dependsCountDownLatch.await();
 			} catch (InterruptedException e) {
