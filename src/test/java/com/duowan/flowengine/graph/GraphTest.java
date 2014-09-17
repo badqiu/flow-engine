@@ -3,6 +3,7 @@ package com.duowan.flowengine.graph;
 import java.util.Collection;
 
 import org.junit.Test;
+import org.springframework.util.Assert;
 
 public class GraphTest {
 
@@ -11,9 +12,14 @@ public class GraphTest {
 		Graph<GraphNode> graph = new Graph<GraphNode>();
 		graph.addNode(new GraphNode("start"));
 		for(int i = 0; i < 10; i++) {
-			graph.addNode(new GraphNode("demo_"+i,"start"));
+			GraphNode t = new GraphNode();
+			t.setGraphNodeId("demo_"+i);
+			t.setDepends("start,start");
+			graph.addNode(t);
 		}
 		graph.init();
+		
+		Assert.notEmpty(graph.getEdges());
 		
 		printNodes(graph.getNoDependNodes(),"");
 		for(GraphNode n : graph.getNoDependNodes()) {
