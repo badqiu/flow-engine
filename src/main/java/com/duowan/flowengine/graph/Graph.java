@@ -13,9 +13,9 @@ import org.apache.commons.lang.StringUtils;
  * @author badqiu
  *
  */
-public class Graph <T extends GraphNode>{
+public class Graph <NODE extends GraphNode>{
 
-	private List<T> nodes = new ArrayList<T>();
+	private List<NODE> nodes = new ArrayList<NODE>();
 	private List<GraphEdge> edges = new ArrayList<GraphEdge>();
 	
 	public Graph(){
@@ -34,11 +34,11 @@ public class Graph <T extends GraphNode>{
 		}
 	}
 	
-	public List<T> getNodes() {
+	public List<NODE> getNodes() {
 		return nodes;
 	}
 
-	public void setNodes(List<T> nodes) {
+	public void setNodes(List<NODE> nodes) {
 		this.nodes = nodes;
 	}
 
@@ -50,8 +50,8 @@ public class Graph <T extends GraphNode>{
 		this.edges = edges;
 	}
 
-	public T getNode(String id) {
-		for(T node : nodes) {
+	public NODE getNode(String id) {
+		for(NODE node : nodes) {
 			if(node.getGraphNodeId().equals(id)) {
 				return node;
 			}
@@ -59,14 +59,14 @@ public class Graph <T extends GraphNode>{
 		return null;
 	}
 	
-	public T getRequiredNode(String id) {
-		T n = getNode(id);
+	public NODE getRequiredNode(String id) {
+		NODE n = getNode(id);
 		if(n == null) 
 			throw new IllegalArgumentException("not found Node by id:"+id);
 		return n;
 	}
 	
-	public void addNode(T n) {
+	public void addNode(NODE n) {
 		if(!nodes.contains(n)) 
 			nodes.add(n);
 	}
@@ -75,9 +75,9 @@ public class Graph <T extends GraphNode>{
 	 * 得到没有任何依赖的所有节点
 	 * @return
 	 */
-	public List<T> getNoDependNodes() {
-		List<T> result = new ArrayList<T>();
-		for(T t : nodes) {
+	public List<NODE> getNoDependNodes() {
+		List<NODE> result = new ArrayList<NODE>();
+		for(NODE t : nodes) {
 			if(CollectionUtils.isEmpty(t.getParents())) {
 				result.add(t);
 			}
@@ -117,5 +117,13 @@ public class Graph <T extends GraphNode>{
 		beginNode.addChild(endNode);
 		endNode.addParent(beginNode);
 		edges.add(edge);
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for(NODE n : getNoDependNodes()) {
+			sb.append(n.dump(0)+"\n");
+		}
+		return sb.toString();
 	}
 }

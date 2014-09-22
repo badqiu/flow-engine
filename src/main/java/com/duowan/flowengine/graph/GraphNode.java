@@ -5,13 +5,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * 代表图的某个节点
  * 
  * @author badqiu
  * 
  */
-public class GraphNode <T>{
+public class GraphNode <T extends GraphNode>{
 	/**
 	 * 节点ID
 	 */
@@ -84,6 +86,15 @@ public class GraphNode <T>{
 	public void addParent(T parent) {
 		if(!parents.contains(parent))
 			parents.add(parent);
+	}
+	
+	public String dump(int tabsCount) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(StringUtils.repeat("\t", tabsCount)+getGraphNodeId());
+		for(T n : getChilds()) {
+			sb.append("\n"+n.dump(tabsCount+1));
+		}
+		return sb.toString();
 	}
 
 	@Override

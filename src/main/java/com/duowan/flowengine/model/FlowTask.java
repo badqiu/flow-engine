@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Observable;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -19,6 +20,9 @@ import com.duowan.common.util.ScriptEngineUtil;
 import com.duowan.flowengine.engine.AsyncTaskExecutor;
 import com.duowan.flowengine.engine.TaskExecutor;
 import com.duowan.flowengine.model.def.FlowTaskDef;
+import com.duowan.flowengine.util.Listener;
+import com.duowan.flowengine.util.Listenerable;
+import com.duowan.flowengine.util.Retry;
 /**
  * 流程任务实例
  * @author badqiu
@@ -49,6 +53,8 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	 * 最后执行的异常
 	 */
 	private Throwable exception;
+	
+	private transient Listenerable<FlowTask> listenerable = new Listenerable<FlowTask>();
 	
 	public FlowTask() {
 	}
@@ -93,16 +99,26 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			IllegalAccessException, ClassNotFoundException,
 			InterruptedException, IOException {
 		Assert.hasText(getProgramClass(),"programClass must be not empty");
-		if(context.getVisitedTaskCodes().contains(getTaskCode())) {
+		String flowCodeWithTaskCode = getFlowCode() + "/" + getTaskCode();
+		if(context.getVisitedTaskCodes().contains(flowCodeWithTaskCode)) {
 			return;
 		}
-		context.getVisitedTaskCodes().add(getTaskCode());
+		context.getVisitedTaskCodes().add(flowCodeWithTaskCode);
 		
 		TaskExecutor executor = (TaskExecutor)Class.forName(getProgramClass()).newInstance();
 		execStartTime = new Date();
 		evalGroovy(context,getBeforeGroovy());
 		
+		
+//		Retry.retry(getRetryTimes(), getRetryInterval(), getTimeout(), new Callable<Object>() {
+//			@Override
+//			public Object call() throws Exception {
+//				
+//				return null;
+//			}
+//		});
 		while(true) {
+			long start = System.currentTimeMillis();
 			try {
 				status = "RUNNING";
 				this.exception = null;
@@ -111,8 +127,8 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 					Thread.sleep(getPreSleepTime());
 				}
 				
-				long start = System.currentTimeMillis();
 				
+				notifyListeners();
 				executor.exec(this,context.getParams(),context.getFlowEngine());
 				
 				waitIfRunning(executor, context, this);
@@ -128,18 +144,26 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				}
 				
 				evalGroovy(context,getAfterGroovy());
-				this.execCostTime = System.currentTimeMillis() - start;
+				
+				
+				notifyListeners();
 				break;
 			}catch(Exception e) {
 				this.exception = e;
 				if(this.usedRetryTimes >= getRetryTimes()) {
 					break;
 				}
-				
 				Assert.isTrue(getRetryInterval() > 0," getRetryInterval() > 0 must be true");
-				status = "RETRY";
 				this.usedRetryTimes = this.usedRetryTimes + 1;
+				notifyListeners();
 				Thread.sleep(getRetryInterval());
+			}finally {
+				this.execCostTime = System.currentTimeMillis() - start;
+				if(getTimeout() > 0) {
+					if(this.execCostTime > getTimeout() ) {
+						break;
+					}
+				}
 			}
 		}
 		
@@ -156,6 +180,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		}
 		
 		this.status = "END";
+		notifyListeners();
 	}
 
 	private void evalGroovy(final FlowContext context,String script) {
@@ -172,6 +197,14 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		}
 	}
 	
+	public void notifyListeners() {
+		listenerable.notifyListeners(this, null);
+	}
+
+	public void addListener(Listener<FlowTask> t) {
+		listenerable.addListener(t);
+	}
+
 	/**
 	 * 通过计算得出的权重,如孩子越多,则权重越高,孩子自身的权重可以传递给父亲
 	 * @return

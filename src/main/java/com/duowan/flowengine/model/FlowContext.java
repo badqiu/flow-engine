@@ -7,6 +7,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.duowan.flowengine.engine.FlowEngine;
+import com.duowan.flowengine.util.Listener;
+import com.duowan.flowengine.util.Listenerable;
 
 /**
  * 流程执行的上下文
@@ -21,6 +23,8 @@ public class FlowContext {
 	private Map params; // 流程参数
 	private Flow flow; // 流程
 	private List<String> visitedTaskCodes = new ArrayList<String>(); //已经访问过的流程任务节点
+	
+	private transient Listenerable<FlowContext> listenerable = new Listenerable<FlowContext>();
 	
 	public ExecutorService getExecutorService() {
 		return executorService;
@@ -60,6 +64,19 @@ public class FlowContext {
 
 	public void setFlowEngine(FlowEngine flowEngine) {
 		this.flowEngine = flowEngine;
+	}
+	
+	public void addVisitedTaskCode(String taskCode) {
+		getVisitedTaskCodes().add(taskCode);
+		notifyListeners();
+	}
+	
+	public void notifyListeners() {
+		listenerable.notifyListeners(this, null);
+	}
+
+	public void addListener(Listener<FlowContext> t) {
+		listenerable.addListener(t);
 	}
 	
 	public void awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {

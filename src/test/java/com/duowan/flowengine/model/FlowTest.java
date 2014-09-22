@@ -33,7 +33,9 @@ public class FlowTest {
 		
 		//初始化Flow
 		f.init();
-		
+		System.out.println("dump start ----------------------");
+		System.out.println(f.toString());
+		System.out.println("dump end ----------------------");
 	}
 	
 	@Test

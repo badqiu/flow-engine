@@ -1,6 +1,8 @@
 package com.duowan.flowengine.model;
 
 import com.duowan.flowengine.model.def.FlowDef;
+import com.duowan.flowengine.util.Listener;
+import com.duowan.flowengine.util.Listenerable;
 
 /**
  * 流程实例,一个流程包括多个任务(FlowTask)
@@ -13,6 +15,8 @@ public class Flow extends FlowDef<FlowTask>{
 	private String status; //任务状态: 可运行,运行中,阻塞(睡眠,等待),停止
 	private int execResult; //执行结果: 0成功,非0为失败
 
+	private transient Listenerable<Flow> listenerable = new Listenerable<Flow>();
+	
 	public Flow() {
 	}
 	
@@ -46,5 +50,11 @@ public class Flow extends FlowDef<FlowTask>{
 		this.execResult = execResult;
 	}
 
-	
+	public void notifyListeners() {
+		listenerable.notifyListeners(this, null);
+	}
+
+	public void addListener(Listener<Flow> t) {
+		listenerable.addListener(t);
+	}
 }

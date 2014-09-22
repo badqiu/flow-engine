@@ -21,14 +21,21 @@ public class GraphTest {
 		}
 		graph.init();
 		
+		System.out.println(graph.toString());
+		System.out.println("------------------------------------------");
+		
 		Assert.notEmpty(graph.getEdges());
 		assertEquals(10,graph.getEdges().size());
 		assertEquals(10,graph.getNode("start").getChilds().size());
+		
+		System.out.println(graph.toString());
+		System.out.println("------------------------------------------");
 		
 		printNodes(graph.getNoDependNodes(),"");
 		for(GraphNode n : graph.getNoDependNodes()) {
 			printNodes(n.getChilds(),"\t");
 		}
+		
 	}
 
 	private void printNodes(Collection<GraphNode> nodes,String prefix) {
