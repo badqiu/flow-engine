@@ -13,7 +13,7 @@ import org.springframework.util.Assert;
  *
  */
 public class OutputCollector {
-	private static final Integer DEFAULT_HASH_KEY = 1;
+//	private static final Integer DEFAULT_HASH_KEY = 1;
 
 	/**
 	 * Map<stream,BoltProcessRouter>
@@ -35,7 +35,7 @@ public class OutputCollector {
 	 * @param obj 要emit的数据
 	 */
 	public void emit(Object obj) {
-		emit("default",DEFAULT_HASH_KEY,obj);
+		emit("default",obj,obj);
 	}
 	
 	/**
@@ -67,7 +67,16 @@ public class OutputCollector {
 			router.process(hashKey, obj);
 		}
 	}
+	
+	public void reportError(String message,Exception e) {
+	}
 
+	public void fail() {
+	}
+	
+	public void ack() {
+	}
+	
 	private List<BoltProcessRouter> getBoltProcessRouter(String stream) {
 		return boltProcessRouters.get(stream);
 	}

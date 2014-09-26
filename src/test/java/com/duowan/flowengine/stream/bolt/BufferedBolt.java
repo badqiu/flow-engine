@@ -16,7 +16,7 @@ import com.duowan.flowengine.util.SystemTimer;
  * @author badqiu
  *
  */
-public class BufferedBolt implements Bolt{
+public class BufferedBolt implements Bolt,BoltConfig{
 	private static Logger log = LoggerFactory.getLogger(BufferedBolt.class);
 	public static final int DEFAULT_BUF_SIZE = 10000;
 	public static final int DEFAULT_BUF_INTERVAL = 500;
@@ -45,8 +45,8 @@ public class BufferedBolt implements Bolt{
 	
 	@Override
 	public void process(List objects) throws Exception {
-//		buf.addAll(objects);
-//		notifyIfNeed();
+		buf.addAll(objects);
+		notifyIfNeed();
 	}
 	
 	public void process(Object hashKey,Object obj) {

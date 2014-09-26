@@ -1,4 +1,4 @@
-package com.duowan.flowengine.util;
+package com.duowan.flowengine.util.loadbalance;
 public  class LBTestBean {
 	private int i;
 	

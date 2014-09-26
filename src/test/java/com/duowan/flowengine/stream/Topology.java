@@ -14,10 +14,35 @@ import com.duowan.flowengine.graph.Graph;
 public class Topology extends Graph<TopologyNode>{
 
 	private static Logger log = LoggerFactory.getLogger(Topology.class);
-	public void build() {
-		
-	}
 	
+	private String id;
+	private String author;
+	private String remarks;
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
+	public String getRemarks() {
+		return remarks;
+	}
+
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
+
 	@Override
 	public void init() {
 		super.init();
@@ -39,7 +64,7 @@ public class Topology extends Graph<TopologyNode>{
 		}
 	}
 
-	private void initWithContext(final TopologyContext context)
+	public void initWithContext(final TopologyContext context)
 			throws InstantiationException, IllegalAccessException {
 		for(final TopologyNode node : getNodes()) {
 			node.setContext(context);

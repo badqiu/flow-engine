@@ -5,7 +5,7 @@ import org.springframework.util.Assert;
 import com.duowan.flowengine.stream.OutputCollector;
 import com.duowan.flowengine.stream.TopologyContext;
 
-public abstract class BasicBolt implements Bolt{
+public abstract class BasicBolt implements Bolt,BoltConfig{
 
 	protected TopologyContext context;
 	protected OutputCollector collector;

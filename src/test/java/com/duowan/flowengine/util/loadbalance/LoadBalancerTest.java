@@ -1,9 +1,11 @@
-package com.duowan.flowengine.util;
+package com.duowan.flowengine.util.loadbalance;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.springframework.aop.framework.ProxyFactory;
+
+import com.duowan.flowengine.util.loadbalance.LoadBalancerInterceptor;
 
 public class LoadBalancerTest {
 

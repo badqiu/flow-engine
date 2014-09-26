@@ -11,10 +11,14 @@ import com.duowan.flowengine.stream.bolt.BufferedBolt;
  *
  */
 public class BoltProcessRouter {
+	private String boltName;
+	private String stream;
+	private String sourceBoltName;
+	private String sourceStream;
 	
 	private List<BufferedBolt> bufs = new ArrayList<BufferedBolt>();
 	
-	public BoltProcessRouter(Bolt business,int bufInstanceNum,int bufSize,int bufInterval,TopologyContext context) {
+	public BoltProcessRouter(String boltName,String stream,Bolt business,int bufInstanceNum,int bufSize,int bufInterval,TopologyContext context) {
 		for(int i = 0; i < bufInstanceNum; i++) {
 			BufferedBolt task = new BufferedBolt(business,bufSize,bufInterval);
 			bufs.add(task);

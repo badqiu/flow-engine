@@ -12,8 +12,6 @@ import com.duowan.flowengine.stream.TopologyContext;
  */
 public interface Bolt <T>{
 
-	public void init(OutputCollector collector,TopologyContext context);
-	
 	public void process(List<T> objects) throws Exception;
 	
 }

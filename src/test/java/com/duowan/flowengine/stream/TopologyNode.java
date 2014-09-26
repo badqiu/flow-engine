@@ -1,11 +1,14 @@
 package com.duowan.flowengine.stream;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import com.duowan.flowengine.graph.GraphNode;
 import com.duowan.flowengine.stream.bolt.Bolt;
+import com.duowan.flowengine.stream.bolt.BoltConfig;
 import com.duowan.flowengine.stream.bolt.BufferedBolt;
 
 /**
@@ -14,26 +17,24 @@ import com.duowan.flowengine.stream.bolt.BufferedBolt;
  * @author badqiu
  *
  */
-public class TopologyNode extends GraphNode<TopologyNode>{
+public class TopologyNode extends GraphNode<TopologyNode> implements Bolt{
 
 	private static final int DEFAULT_THREAD_NUM = 1;
 
 	private static Logger log = LoggerFactory.getLogger(TopologyNode.class);
 	
-	private String stream = "default";
 	private Class<? extends Bolt> blotClass;
-	/**
-	 * 线程数,指定bolt通过多少个线程处理
-	 */
+	private String stream = "default";
 	private int threadNum = DEFAULT_THREAD_NUM;
 	private int bufSize = BufferedBolt.DEFAULT_BUF_SIZE;
 	private int bufInterval = BufferedBolt.DEFAULT_BUF_INTERVAL;
+	private Bolt business;
+	private boolean isGlobalUnique; //是否多台机器唯一的实例
 	
 	private TopologyContext context = null;
-	private Bolt business;
 	private OutputCollector outputCollector = null;
-	private transient boolean spoutRunning = false;
-	
+	private transient boolean spoutRunning = false; // 是否的当作输入spout
+	private boolean isInitBolt = false;
 	public Class<? extends Bolt> getBlotClass() {
 		return blotClass;
 	}
@@ -62,38 +63,72 @@ public class TopologyNode extends GraphNode<TopologyNode>{
 		this.context = context;
 	}
 	
+	public Bolt getBusiness() {
+		return business;
+	}
+
+	public void setBusiness(Bolt business) {
+		this.business = business;
+	}
+
+	public void setBufSize(int bufSize) {
+		this.bufSize = bufSize;
+	}
+
+	public void setBufInterval(int bufInterval) {
+		this.bufInterval = bufInterval;
+	}
+
+	public void setGlobalUnique(boolean isGlobalUnique) {
+		this.isGlobalUnique = isGlobalUnique;
+	}
+
+	public void setOutputCollector(OutputCollector outputCollector) {
+		this.outputCollector = outputCollector;
+	}
+
 	public void init() throws InstantiationException, IllegalAccessException {
 		Assert.notNull(context,"context must be not null");
-		Assert.notNull(blotClass,"blotClass must be not null");
 		Assert.isTrue(threadNum > 0,"taskNum > 0 must true");
-		Assert.notNull(getBusinessBolt());
+		Assert.notNull(initBusinessBolt());
 	}
 	
-	private synchronized Bolt getBusinessBolt() throws InstantiationException, IllegalAccessException {
+	private synchronized Bolt initBusinessBolt() throws InstantiationException, IllegalAccessException {
 		if(business == null) {
 			business = buildBolt();
+		}
+		if(!isInitBolt) {
+			isInitBolt = true;
+			initBolt(business);
 		}
 		return business;
 	}
 	
 	private Bolt buildBolt() throws InstantiationException,IllegalAccessException {
 		Bolt business = blotClass.newInstance();
-		return initBolt(business);
+		return business;
 	}
 
 	private Bolt initBolt(Bolt business) throws InstantiationException,
 			IllegalAccessException {
-		outputCollector = new OutputCollector();
+		if(business instanceof BoltConfig) {
+			outputCollector = newOutputCollector();
+	
+			Assert.notNull(context,"context must be not null ,on id:"+getGraphNodeId());
+			((BoltConfig)business).init(outputCollector, context);
+		}
+		return business;
+	}
+
+	private OutputCollector newOutputCollector() throws InstantiationException,
+			IllegalAccessException {
+		OutputCollector outputCollector = new OutputCollector();
 		for(TopologyNode childNode : getChilds()) {
-			Bolt childBolt = childNode.getBusinessBolt();
-			BoltProcessRouter router = new BoltProcessRouter(childBolt,childNode.threadNum,bufSize,bufInterval,context);
-			
+			childNode.initBusinessBolt();
+			BoltProcessRouter router = new BoltProcessRouter(childNode.getGraphNodeId(),childNode.stream,childNode,childNode.threadNum,bufSize,bufInterval,context);
 			outputCollector.addBoltProcessRouter(childNode.stream, router);
 		}
-
-		Assert.notNull(context,"context must be not null ,on id:"+getGraphNodeId());
-		business.init(outputCollector, context);
-		return business;
+		return outputCollector;
 	}
 
 	public void startSpout()  {
@@ -106,5 +141,10 @@ public class TopologyNode extends GraphNode<TopologyNode>{
 			}
 		}
 	}
-	
+
+	@Override
+	public void process(List objects) throws Exception {
+		business.process(objects);
+	}
+
 }
