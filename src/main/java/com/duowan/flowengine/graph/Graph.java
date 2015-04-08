@@ -1,5 +1,6 @@
 package com.duowan.flowengine.graph;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,8 +14,10 @@ import org.apache.commons.lang.StringUtils;
  * @author badqiu
  *
  */
-public class Graph <NODE extends GraphNode>{
+public class Graph <NODE extends GraphNode> implements Serializable {
 
+	private static final long serialVersionUID = -772398465741515697L;
+	
 	private List<NODE> nodes = new ArrayList<NODE>();
 	private List<GraphEdge> edges = new ArrayList<GraphEdge>();
 	
@@ -25,12 +28,20 @@ public class Graph <NODE extends GraphNode>{
 	 * 初始化图
 	 */
 	public void init() {
-		initAllNodeDepends();
+		initAllNodeDepends(false);
 	}
 
-	private void initAllNodeDepends() {
+	private void initAllNodeDepends(boolean ignoreNotFoundDependError) {
 		for(GraphNode node : nodes) {
-			addDepends(node.getGraphNodeId(), node.getDepends());
+			try {
+				addDepends(node.getGraphNodeId(), node.getDepends());
+			}catch(RuntimeException e) {
+				if(ignoreNotFoundDependError) {
+					//ignore
+				}else {
+					throw e;
+				}
+			}
 		}
 	}
 	
@@ -67,6 +78,9 @@ public class Graph <NODE extends GraphNode>{
 	}
 	
 	public void addNode(NODE n) {
+		if(nodes == null) {
+			new ArrayList<NODE>();
+		}
 		if(!nodes.contains(n)) 
 			nodes.add(n);
 	}
@@ -108,6 +122,9 @@ public class Graph <NODE extends GraphNode>{
 	 * @param depends
 	 */
 	public void addEdge(GraphEdge edge) {
+		if(edges == null) {
+			edges = new ArrayList<GraphEdge>();
+		}
 		if(edges.contains(edge)) {
 			return;
 		}

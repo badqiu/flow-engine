@@ -1,7 +1,7 @@
 package com.duowan.flowengine.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -16,13 +16,14 @@ import com.duowan.flowengine.util.Listenerable;
  * @author badqiu
  * 
  */
-public class FlowContext {
+public class FlowContext implements Serializable {
 
 	private transient ExecutorService executorService;
 	private transient FlowEngine flowEngine;
-	private Map params; // 流程参数
+	private Map params = new HashMap(); // 流程参数
 	private Flow flow; // 流程
-	private List<String> visitedTaskCodes = new ArrayList<String>(); //已经访问过的流程任务节点
+	private Map context = new HashMap(); //保存上下文内容
+//	private List<String> visitedTaskCodes = new ArrayList<String>(); //已经访问过的流程任务节点
 	
 	private transient Listenerable<FlowContext> listenerable = new Listenerable<FlowContext>();
 	
@@ -50,13 +51,13 @@ public class FlowContext {
 		this.flow = flow;
 	}
 
-	public List<String> getVisitedTaskCodes() {
-		return visitedTaskCodes;
-	}
-
-	public void setVisitedTaskCodes(List<String> visitedTaskCodes) {
-		this.visitedTaskCodes = visitedTaskCodes;
-	}
+//	public List<String> getVisitedTaskCodes() {
+//		return visitedTaskCodes;
+//	}
+//
+//	public void setVisitedTaskCodes(List<String> visitedTaskCodes) {
+//		this.visitedTaskCodes = visitedTaskCodes;
+//	}
 
 	public FlowEngine getFlowEngine() {
 		return flowEngine;
@@ -66,13 +67,23 @@ public class FlowContext {
 		this.flowEngine = flowEngine;
 	}
 	
-	public void addVisitedTaskCode(String taskCode) {
-		getVisitedTaskCodes().add(taskCode);
-		notifyListeners();
-	}
+//	public void addVisitedTaskCode1(String taskCode) {
+//		getVisitedTaskCodes().add(taskCode);
+//		notifyListeners();
+//	}
+	
+	
 	
 	public void notifyListeners() {
 		listenerable.notifyListeners(this, null);
+	}
+
+	public Map getContext() {
+		return context;
+	}
+
+	public void setContext(Map context) {
+		this.context = context;
 	}
 
 	public void addListener(Listener<FlowContext> t) {

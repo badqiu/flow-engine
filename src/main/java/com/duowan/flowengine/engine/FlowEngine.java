@@ -25,7 +25,7 @@ public class FlowEngine {
 	public FlowContext exec(Flow flow,List<FlowTask> tasks, Map params) {
 		Assert.isTrue(flow.getMaxParallel() > 0,"flow.getMaxParallel() > 0 must be true");
 		FlowContext context = newFlowContext(params, flow);
-		FlowTask.execAll(context, false, true, tasks,true);
+		exec(flow, tasks, context);
 		return context;
 	}
 	
@@ -42,6 +42,11 @@ public class FlowEngine {
 	public FlowContext exec(Flow flow, String startTaskCode, FlowContext context) {
 		FlowTask task = flow.getNode(startTaskCode);
 		task.exec(context,false,true);
+		return context;
+	}
+	
+	public FlowContext exec(Flow flow, List<FlowTask> tasks, FlowContext context) {
+		FlowTask.execAll(context, false, true, tasks, true);
 		return context;
 	}
 

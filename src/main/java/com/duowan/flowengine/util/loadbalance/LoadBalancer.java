@@ -24,6 +24,7 @@ import org.springframework.beans.factory.DisposableBean;
  * 支持负载均衡算法:
  *  host_hash: 根据当前主机地址,持续的绑定在某个实例上
  *  round_robin: 轮循算法,按顺序调用每个实例
+ *  param_hash: 根据参数进行hash
  *  
  * 其它功能: 
  *  实现实现FailFast快速失败

@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Observable;
-import java.util.concurrent.Callable;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -22,7 +24,6 @@ import com.duowan.flowengine.engine.TaskExecutor;
 import com.duowan.flowengine.model.def.FlowTaskDef;
 import com.duowan.flowengine.util.Listener;
 import com.duowan.flowengine.util.Listenerable;
-import com.duowan.flowengine.util.Retry;
 /**
  * 流程任务实例
  * @author badqiu
@@ -48,13 +49,21 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	/**
      * 任务执行日志       db_column: task_log 
      */ 	
-	private java.lang.String taskLog;
+	private java.lang.StringBuilder taskLog = new java.lang.StringBuilder();
+	
+	private Map context = new HashMap(); //保存上下文内容
+	
 	/**
 	 * 最后执行的异常
 	 */
 	private Throwable exception;
 	
 	private transient Listenerable<FlowTask> listenerable = new Listenerable<FlowTask>();
+	
+	/**
+	 * 未执行完成的父亲节点
+	 */
+	private Set<FlowTask> unFinishParents = new HashSet<FlowTask>();
 	
 	public FlowTask() {
 	}
@@ -79,10 +88,126 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		this.flowInstanceId = flowInstanceId;
 	}
 	
+	
+	public String getInstanceId() {
+		return instanceId;
+	}
+
+	public void setInstanceId(String instanceId) {
+		this.instanceId = instanceId;
+	}
+
+	public String getFlowInstanceId() {
+		return flowInstanceId;
+	}
+
+	public void setFlowInstanceId(String flowInstanceId) {
+		this.flowInstanceId = flowInstanceId;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public int getExecResult() {
+		return execResult;
+	}
+
+	public void setExecResult(int execResult) {
+		this.execResult = execResult;
+	}
+
+	public long getExecCostTime() {
+		return execCostTime;
+	}
+
+	public void setExecCostTime(long execCostTime) {
+		this.execCostTime = execCostTime;
+	}
+
+	public java.util.Date getExecStartTime() {
+		return execStartTime;
+	}
+
+	public void setExecStartTime(java.util.Date execStartTime) {
+		this.execStartTime = execStartTime;
+	}
+
+	public java.lang.StringBuilder getTaskLog() {
+		return taskLog;
+	}
+
+	public void setTaskLog(java.lang.StringBuilder taskLog) {
+		this.taskLog = taskLog;
+	}
+	
+	public void addTaskLog(String txt) {
+		this.taskLog.append(txt);
+	}
+
+	public Throwable getException() {
+		return exception;
+	}
+
+	public void setException(Throwable exception) {
+		this.exception = exception;
+	}
+
+	public boolean isForceExec() {
+		return forceExec;
+	}
+
+	public void setForceExec(boolean forceExec) {
+		this.forceExec = forceExec;
+	}
+
+	public int getUsedRetryTimes() {
+		return usedRetryTimes;
+	}
+
+	public void setUsedRetryTimes(int usedRetryTimes) {
+		this.usedRetryTimes = usedRetryTimes;
+	}
+
+	public Map getContext() {
+		return context;
+	}
+
+	public void setContext(Map context) {
+		this.context = context;
+	}
+
+	public Listenerable<FlowTask> getListenerable() {
+		return listenerable;
+	}
+
+	public void setListenerable(Listenerable<FlowTask> listenerable) {
+		this.listenerable = listenerable;
+	}
+	
+	public Set<FlowTask> getUnFinishParents() {
+		return unFinishParents;
+	}
+
+	public void setUnFinishParents(Set<FlowTask> unFinishParents) {
+		this.unFinishParents = unFinishParents;
+	}
+	
+	public void addUnFinisheParent(FlowTask unFinisheParent) {
+		if(!unFinishParents.contains(unFinisheParent)) {
+			unFinishParents.add(unFinisheParent);
+		}
+	}
+
 	public void exec(final FlowContext context,final boolean execParents,final boolean execChilds) {
 		if(execParents) {
 			execAll(context,execParents, execChilds,getParents(),true);
 		}
+		
 		
 		try {
 			execSelf(context);
@@ -91,19 +216,23 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		} 
 		
 		if(execChilds) {
-			execAll(context,execParents, execChilds,getChilds(),false);
+			execAll(context,execParents, execChilds,getChilds(),true);
 		}
 	}
 
-	private void execSelf(final FlowContext context) throws InstantiationException,
+	private synchronized void execSelf(final FlowContext context) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException,
 			InterruptedException, IOException {
-		Assert.hasText(getProgramClass(),"programClass must be not empty");
-		String flowCodeWithTaskCode = getFlowCode() + "/" + getTaskCode();
-		if(context.getVisitedTaskCodes().contains(flowCodeWithTaskCode)) {
+		//判断所有父亲是否已完全执行
+		if(!getUnFinishParents().isEmpty()) {
 			return;
 		}
-		context.getVisitedTaskCodes().add(flowCodeWithTaskCode);
+//		Assert.hasText(getProgramClass(),"programClass must be not empty");
+//		String flowCodeWithTaskCode = getFlowCode() + "/" + getTaskCode();
+//		if(context.getVisitedTaskCodes().contains(flowCodeWithTaskCode)) {
+//			return;
+//		}
+//		context.getVisitedTaskCodes().add(flowCodeWithTaskCode);
 		
 		TaskExecutor executor = (TaskExecutor)Class.forName(getProgramClass()).newInstance();
 		execStartTime = new Date();
@@ -129,7 +258,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				
 				
 				notifyListeners();
-				executor.exec(this,context.getParams(),context.getFlowEngine());
+				executor.exec(this, context);
 				
 				waitIfRunning(executor, context, this);
 				
@@ -151,12 +280,15 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			}catch(Exception e) {
 				this.exception = e;
 				if(this.usedRetryTimes >= getRetryTimes()) {
+					this.execResult = (this.execResult == 0) ? 1 : this.execResult;
 					break;
 				}
-				Assert.isTrue(getRetryInterval() > 0," getRetryInterval() > 0 must be true");
+//				Assert.isTrue(getRetryInterval() > 0," getRetryInterval() > 0 must be true");
 				this.usedRetryTimes = this.usedRetryTimes + 1;
 				notifyListeners();
-				Thread.sleep(getRetryInterval());
+				if(getRetryInterval() > 0) {
+					Thread.sleep(getRetryInterval());
+				}
 			}finally {
 				this.execCostTime = System.currentTimeMillis() - start;
 				if(getTimeout() > 0) {
@@ -172,15 +304,27 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		}
 		
 		if(executor instanceof AsyncTaskExecutor) {
-			this.taskLog = IOUtils.toString(((AsyncTaskExecutor)executor).getLog(this, context.getParams()));
+			addTaskLog( IOUtils.toString(((AsyncTaskExecutor)executor).getLog(this, context.getParams())) );
 		}else {
 			if(exception != null) {
-				this.taskLog = ExceptionUtils.getFullStackTrace(exception);
+				addTaskLog( ExceptionUtils.getFullStackTrace(exception) );
 			}
 		}
 		
 		this.status = "END";
 		notifyListeners();
+		
+		//执行成功,或者执行不成功但失败可忽略,在其孩子的未完成父亲集合中去掉当前任务
+		if(this.execResult == 0 || (this.execResult != 0 && this.isIgnoreError())) {
+			for(FlowTask flowTask : this.getChilds()) {
+				flowTask.getUnFinishParents().remove(this);
+			}
+		}
+		//否则整个流程标记为失败，并且其孩子节点将不会执行
+		else {
+			context.getFlow().setExecResult(1);
+		}
+		
 	}
 
 	private void evalGroovy(final FlowContext context,String script) {
@@ -198,10 +342,15 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	}
 	
 	public void notifyListeners() {
-		listenerable.notifyListeners(this, null);
+		if(listenerable != null) {
+			listenerable.notifyListeners(this, null);
+		}
 	}
 
 	public void addListener(Listener<FlowTask> t) {
+		if(listenerable == null) {
+			listenerable = new Listenerable<FlowTask>();
+		}
 		listenerable.addListener(t);
 	}
 
@@ -215,7 +364,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	
 	@Override
 	public int compareTo(FlowTask o) {
-		return -Integer.compare(computePriority(), o.computePriority());
+		return -new Integer(computePriority()).compareTo(o.computePriority());
 	}
 
 	public static void execAll(final FlowContext context, final boolean execParents,final boolean execChilds, Collection<FlowTask> tasks,boolean waitTasksExecEnd) {
@@ -252,4 +401,6 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			}
 		}
 	}
+	
+	
 }

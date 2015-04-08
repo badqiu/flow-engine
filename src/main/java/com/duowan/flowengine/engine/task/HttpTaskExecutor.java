@@ -1,15 +1,13 @@
 package com.duowan.flowengine.engine.task;
 
-import java.util.Map;
-
-import com.duowan.flowengine.engine.FlowEngine;
 import com.duowan.flowengine.engine.TaskExecutor;
+import com.duowan.flowengine.model.FlowContext;
 import com.duowan.flowengine.model.FlowTask;
 
 public class HttpTaskExecutor implements TaskExecutor {
 
 	@Override
-	public void exec(FlowTask task, Map params, FlowEngine engine)
+	public void exec(FlowTask task, FlowContext flowContext)
 			throws Exception {
 		String url = task.getProgram();
 		

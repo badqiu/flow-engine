@@ -1,9 +1,8 @@
 package com.duowan.flowengine.graph;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -13,7 +12,10 @@ import org.apache.commons.lang.StringUtils;
  * @author badqiu
  * 
  */
-public class GraphNode <T extends GraphNode>{
+public class GraphNode<T extends GraphNode> implements Serializable {
+
+	private static final long serialVersionUID = 5097996371381799833L;
+	
 	/**
 	 * 节点ID
 	 */
@@ -101,7 +103,7 @@ public class GraphNode <T extends GraphNode>{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((graphNodeId == null) ? 0 : graphNodeId.hashCode());
+		result = prime * result + ((getGraphNodeId() == null) ? 0 : getGraphNodeId().hashCode());
 		return result;
 	}
 
@@ -114,10 +116,10 @@ public class GraphNode <T extends GraphNode>{
 		if (getClass() != obj.getClass())
 			return false;
 		GraphNode other = (GraphNode) obj;
-		if (graphNodeId == null) {
-			if (other.graphNodeId != null)
+		if (getGraphNodeId() == null) {
+			if (other.getGraphNodeId() != null)
 				return false;
-		} else if (!graphNodeId.equals(other.graphNodeId))
+		} else if (!getGraphNodeId().equals(other.getGraphNodeId()))
 			return false;
 		return true;
 	}

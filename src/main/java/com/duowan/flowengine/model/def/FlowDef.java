@@ -2,6 +2,7 @@ package com.duowan.flowengine.model.def;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.duowan.flowengine.graph.Graph;
@@ -30,7 +31,7 @@ public class FlowDef <T extends GraphNode> extends Graph<T> implements Serializa
 	/**
 	 * 附加属性
 	 */
-	private Map props; 
+	private Map props = new HashMap();; 
 	/**
 	 * cron表达式
 	 */

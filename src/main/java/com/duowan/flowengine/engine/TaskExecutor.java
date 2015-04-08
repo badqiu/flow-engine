@@ -1,11 +1,10 @@
 package com.duowan.flowengine.engine;
 
-import java.util.Map;
-
+import com.duowan.flowengine.model.FlowContext;
 import com.duowan.flowengine.model.FlowTask;
 
 public interface TaskExecutor {
 
-	public void exec(FlowTask task,Map params,FlowEngine engine) throws Exception;
+	public void exec(FlowTask task, FlowContext flowContext) throws Exception;
 	
 }

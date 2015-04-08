@@ -1,8 +1,8 @@
 package com.duowan.flowengine.model.def;
 
 import java.io.Serializable;
-import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.duowan.flowengine.engine.TaskExecutor;
@@ -14,8 +14,8 @@ import com.duowan.flowengine.graph.GraphNode;
  * @author badqiu
  *
  */
-public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements Serializable{
-	private static final long serialVersionUID = 1L;
+public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements Serializable {
+	private static final long serialVersionUID = 8556055799573541106L;
 	
 	private String flowCode;//流程代码
 	private String taskCode;//任务代码
@@ -74,7 +74,7 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	/**
 	 * 附加属性
 	 */
-	private Map props; 
+	private Map props = new HashMap(); 
 	/**
 	 * 依赖的任务
 	 */

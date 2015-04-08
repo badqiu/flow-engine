@@ -2,8 +2,8 @@ package com.duowan.flowengine.engine.task;
 
 import java.util.Map;
 
-import com.duowan.flowengine.engine.FlowEngine;
 import com.duowan.flowengine.engine.TaskExecutor;
+import com.duowan.flowengine.model.FlowContext;
 import com.duowan.flowengine.model.FlowTask;
 
 /**
@@ -14,10 +14,10 @@ import com.duowan.flowengine.model.FlowTask;
 public class AgentTaskExecutor implements TaskExecutor{
 
 	@Override
-	public void exec(FlowTask task, Map params, FlowEngine engine) throws Exception {
+	public void exec(FlowTask task, FlowContext flowContext) throws Exception {
 		String agentUrl = task.getExecAgent();
 		Agent agent = new Agent(agentUrl);
-		agent.exec(task,params);
+		agent.exec(task, flowContext.getParams());
 	}
 
 	public static class Agent{
