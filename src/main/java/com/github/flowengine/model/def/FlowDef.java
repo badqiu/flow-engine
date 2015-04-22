@@ -23,11 +23,11 @@ public class FlowDef <T extends GraphNode> extends Graph<T> implements Serializa
 	/**
 	 * flow是否激活
 	 */
-	private boolean enabled;
+	private boolean enabled = true;
 	/**
 	 * 最大并行度 db_column: max_parallel
 	 */
-	private java.lang.Integer maxParallel;
+	private int maxParallel;
 	/**
 	 * 附加属性
 	 */

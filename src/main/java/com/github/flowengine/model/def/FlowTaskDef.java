@@ -23,7 +23,7 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	private String taskModule; //任务所属模块,无用属性
 	private String taskName;//任务名称
 	private String remarks; //任务备注
-	private boolean enabled;//任务是否激活
+	private boolean enabled = true;//任务是否激活
 	
 	private int retryTimes;//错误重试次数
 	private int retryInterval; //错误重试间隔
@@ -78,7 +78,7 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	/**
 	 * 最大并行度(控制子任务的并发执行度) db_column: max_parallel
 	 */
-	private java.lang.Integer maxParallel;
+	private int maxParallel;
 	/**
 	 * cron表达式
 	 */
@@ -241,11 +241,11 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 		this.errorGroovy = exceptionGroovy;
 	}
 	
-	public java.lang.Integer getMaxParallel() {
+	public int getMaxParallel() {
 		return maxParallel;
 	}
 
-	public void setMaxParallel(java.lang.Integer maxParallel) {
+	public void setMaxParallel(int maxParallel) {
 		this.maxParallel = maxParallel;
 	}
 
