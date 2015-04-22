@@ -56,13 +56,13 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	 */
 	private String errorGroovy;
     /**
-     * 要运行的程序脚本       db_column: program 
+     * 要运行的程序脚本       db_column: script 
      */ 	
-	private String program;
+	private String script;
     /**
      * 要运行的程序类型(java_class,bat,shell,shell_script,url,hive_sql,jdbc_sql,java_main,groovy)       db_column: program_type 
      */ 	
-	private java.lang.String programClass;
+	private java.lang.String scriptType;
     /**
      * 任务下线时间       db_column: offline_time 
      */ 	
@@ -75,10 +75,6 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	 * 附加属性
 	 */
 	private Map props = new HashMap(); 
-	/**
-	 * 依赖的任务
-	 */
-	private String depends;
 	/**
 	 * 最大并行度(控制子任务的并发执行度) db_column: max_parallel
 	 */
@@ -94,11 +90,11 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	/**
 	 * 创建人
 	 */
-	private Date creator;
+	private String creator;
 	/**
 	 * 最后操作人
 	 */
-	private Date operator;
+	private String operator;
 	/**
 	 * 最后修改时间
 	 */
@@ -186,20 +182,20 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	public void setExecAgent(String execAgent) {
 		this.execAgent = execAgent;
 	}
-	public java.lang.String getProgram() {
-		return program;
+	public String getScript() {
+		return script;
 	}
-	public void setProgram(java.lang.String program) {
-		this.program = program;
+	public void setScript(String script) {
+		this.script = script;
 	}
-	public java.lang.String getProgramClass() {
-		return programClass;
+	public java.lang.String getScriptType() {
+		return scriptType;
 	}
-	public void setProgramClass(java.lang.String programClass) {
-		this.programClass = programClass;
+	public void setScriptType(java.lang.String scriptType) {
+		this.scriptType = scriptType;
 	}
-	public void setProgramClass(Class<? extends TaskExecutor> clazz) {
-		setProgramClass(clazz.getName());
+	public void setScriptType(Class<? extends TaskExecutor> clazz) {
+		setScriptType(clazz.getName());
 	}
 	public java.util.Date getOfflineTime() {
 		return offlineTime;
@@ -221,14 +217,6 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 		this.props = props;
 	}
 
-	public String getDepends() {
-		return depends;
-	}
-
-	public void setDepends(String depends) {
-		this.depends = depends;
-	}
-	
 	public String getBeforeGroovy() {
 		return beforeGroovy;
 	}
@@ -277,11 +265,19 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 		this.createdTime = createdTime;
 	}
 
-	public Date getOperator() {
+	public String getCreator() {
+		return creator;
+	}
+
+	public void setCreator(String creator) {
+		this.creator = creator;
+	}
+
+	public String getOperator() {
 		return operator;
 	}
 
-	public void setOperator(Date operator) {
+	public void setOperator(String operator) {
 		this.operator = operator;
 	}
 
@@ -301,10 +297,10 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 				+ ", retryTimes=" + retryTimes + ", retryInterval="
 				+ retryInterval + ", isIgnoreError=" + isIgnoreError
 				+ ", preSleepTime=" + preSleepTime + ", timeout=" + timeout
-				+ ", execAgent=" + execAgent + ", program=" + program
-				+ ", programClass=" + programClass + ", offlineTime="
+				+ ", execAgent=" + execAgent + ", script=" + script
+				+ ", scriptType=" + scriptType + ", offlineTime="
 				+ offlineTime + ", priority=" + priority + ", props=" + props
-				+ ", depends=" + depends + "]";
+				+ ", depends=" + getDepends() + "]";
 	}
 
 }

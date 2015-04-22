@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import com.github.flowengine.model.def.FlowDef;
 import com.github.flowengine.util.Listener;
 import com.github.flowengine.util.Listenerable;
@@ -44,8 +46,10 @@ public class Flow extends FlowDef<FlowTask>{
 	public void init() {
 		super.init();
 		for(FlowTask flowTask : super.getNodes()) {
-			Set<FlowTask> unFinishParents = new HashSet<FlowTask>(flowTask.getParents());
-			flowTask.setUnFinishParents(unFinishParents);
+			if(CollectionUtils.isNotEmpty(flowTask.getParents())) {
+				Set<FlowTask> unFinishParents = new HashSet<FlowTask>(flowTask.getParents());
+				flowTask.setUnFinishParents(unFinishParents);
+			}
 		}
 	}
 	

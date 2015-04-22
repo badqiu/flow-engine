@@ -11,7 +11,7 @@ public class SSHTaskExecutor implements TaskExecutor{
 			throws Exception {
 		String username = (String)task.getProps().get("username");
 		String password = (String)task.getProps().get("password");
-		String cmd = task.getProgram();
+		String cmd = task.getScript();
 		
 	}
 

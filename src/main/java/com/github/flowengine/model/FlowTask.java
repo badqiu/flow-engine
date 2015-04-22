@@ -76,10 +76,10 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		super(flowCode,taskCode);
 	}
 	
-	public FlowTask(String taskCode,String depends,Class<? extends TaskExecutor> programClass) {
+	public FlowTask(String taskCode,String depends,Class<? extends TaskExecutor> scriptType) {
 		this(null,taskCode);
 		setDepends(depends);
-		setProgramClass(programClass);
+		setScriptType(scriptType);
 	}
 	
 	public FlowTask(String flowCode, String taskCode,String instanceId,String flowInstanceId) {
@@ -234,7 +234,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 //		}
 //		context.getVisitedTaskCodes().add(flowCodeWithTaskCode);
 		
-		TaskExecutor executor = (TaskExecutor)Class.forName(getProgramClass()).newInstance();
+		TaskExecutor executor = (TaskExecutor)Class.forName(getScriptType()).newInstance();
 		execStartTime = new Date();
 		evalGroovy(context,getBeforeGroovy());
 		

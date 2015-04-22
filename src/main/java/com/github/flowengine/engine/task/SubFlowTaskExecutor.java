@@ -11,7 +11,7 @@ public class SubFlowTaskExecutor implements TaskExecutor{
 
 	@Override
 	public void exec(FlowTask task, FlowContext flowContext) {
-		String flowCode = StringUtils.trim(task.getProgram());
+		String flowCode = StringUtils.trim(task.getScript());
 		Flow flow = flowContext.getFlowEngine().getRequiredFlow(flowCode);
 		flowContext.getFlowEngine().exec(flow, flowContext.getParams());
 	}

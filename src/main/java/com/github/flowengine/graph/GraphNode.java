@@ -65,6 +65,8 @@ public class GraphNode<T extends GraphNode> implements Serializable {
 	}
 
 	public List<T> getChilds() {
+		if(childs == null) childs = new ArrayList<T>();
+		
 		return childs;
 	}
 
@@ -73,6 +75,8 @@ public class GraphNode<T extends GraphNode> implements Serializable {
 	}
 
 	public List<T> getParents() {
+		if(parents == null) parents = new ArrayList<T>();
+		
 		return parents;
 	}
 
@@ -81,13 +85,13 @@ public class GraphNode<T extends GraphNode> implements Serializable {
 	}
 
 	public void addChild(T child) {
-		if(!childs.contains(child))
-			childs.add(child);
+		if(!getChilds().contains(child))
+			getChilds().add(child);
 	}
 
 	public void addParent(T parent) {
-		if(!parents.contains(parent))
-			parents.add(parent);
+		if(!getParents().contains(parent))
+			getParents().add(parent);
 	}
 	
 	public String dump(int tabsCount) {

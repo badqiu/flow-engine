@@ -9,7 +9,7 @@ public class HttpTaskExecutor implements TaskExecutor {
 	@Override
 	public void exec(FlowTask task, FlowContext flowContext)
 			throws Exception {
-		String url = task.getProgram();
+		String url = task.getScript();
 		
 	}
 

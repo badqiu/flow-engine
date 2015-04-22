@@ -20,13 +20,13 @@ public class FlowTest {
 		f.setMaxParallel(3);
 		
 		FlowTask startTask = new FlowTask("start");
-		startTask.setProgramClass(NothingTaskExecutor.class);
+		startTask.setScriptType(NothingTaskExecutor.class);
 		f.addNode(startTask);
 		
 		for(int i = 0; i < 10; i++) {
 			FlowTask t = new FlowTask("demo_task_"+i);
 			t.setDepends("start"); //依赖start任务
-			t.setProgramClass(SystemOutTaskExecutor.class);
+			t.setScriptType(SystemOutTaskExecutor.class);
 			t.setPriority(i);
 			f.addNode(t);
 		}
