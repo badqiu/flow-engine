@@ -204,6 +204,8 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	}
 
 	public void exec(final FlowContext context,final boolean execParents,final boolean execChilds) {
+		beforeExec(context);
+		
 		if(execParents) {
 			execAll(context,execParents, execChilds,getParents(),true);
 		}
@@ -218,6 +220,14 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		if(execChilds) {
 			execAll(context,execParents, execChilds,getChilds(),true);
 		}
+		
+		afterExec(context);
+	}
+
+	protected void afterExec(FlowContext context2) {
+	}
+
+	protected void beforeExec(FlowContext context2) {
 	}
 
 	private synchronized void execSelf(final FlowContext context) throws InstantiationException,

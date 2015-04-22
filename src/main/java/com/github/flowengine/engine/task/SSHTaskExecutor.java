@@ -12,7 +12,6 @@ public class SSHTaskExecutor implements TaskExecutor{
 		String username = (String)task.getProps().get("username");
 		String password = (String)task.getProps().get("password");
 		String cmd = task.getScript();
-		
 	}
 
 }
