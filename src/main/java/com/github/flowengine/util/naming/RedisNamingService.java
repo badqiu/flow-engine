@@ -12,7 +12,7 @@ import org.apache.commons.collections.CollectionUtils;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
 
-import com.duowan.common.redis.RedisTemplate;
+import com.github.rapid.common.redis.RedisTemplate;
 
 public class RedisNamingService implements NamingService{
 	private static final String UNBIND = "unbind";

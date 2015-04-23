@@ -18,12 +18,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.util.Assert;
 
-import com.duowan.common.util.ScriptEngineUtil;
 import com.github.flowengine.engine.AsyncTaskExecutor;
 import com.github.flowengine.engine.TaskExecutor;
 import com.github.flowengine.model.def.FlowTaskDef;
 import com.github.flowengine.util.Listener;
 import com.github.flowengine.util.Listenerable;
+import com.github.rapid.common.util.ScriptEngineUtil;
 /**
  * 流程任务实例
  * @author badqiu

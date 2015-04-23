@@ -34,7 +34,7 @@ public class Graph <NODE extends GraphNode> implements Serializable {
 	private void initAllNodeDepends(boolean ignoreNotFoundDependError) {
 		for(GraphNode node : nodes) {
 			try {
-				addDepends(node.getGraphNodeId(), node.getDepends());
+				addDepends(node.getId(), node.getDepends());
 			}catch(RuntimeException e) {
 				if(ignoreNotFoundDependError) {
 					//ignore
@@ -63,7 +63,7 @@ public class Graph <NODE extends GraphNode> implements Serializable {
 
 	public NODE getNode(String id) {
 		for(NODE node : nodes) {
-			if(node.getGraphNodeId().equals(id)) {
+			if(node.getId().equals(id)) {
 				return node;
 			}
 		}

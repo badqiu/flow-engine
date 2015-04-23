@@ -15,7 +15,7 @@ public class GraphTest {
 		graph.addNode(new GraphNode("start"));
 		for(int i = 0; i < 100; i++) {
 			GraphNode t = new GraphNode();
-			t.setGraphNodeId("demo_"+(i % 10));
+			t.setId("demo_"+(i % 10));
 			t.setDepends("start,start");
 			graph.addNode(t);
 		}
@@ -40,7 +40,7 @@ public class GraphTest {
 
 	private void printNodes(Collection<GraphNode> nodes,String prefix) {
 		for(GraphNode n : nodes) {
-			System.out.println(prefix+n.getGraphNodeId());
+			System.out.println(prefix+n.getId());
 		}
 	}
 }

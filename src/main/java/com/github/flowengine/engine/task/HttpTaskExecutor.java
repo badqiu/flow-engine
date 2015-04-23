@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ public class HttpTaskExecutor implements TaskExecutor {
 	@Override
 	public void exec(FlowTask task, FlowContext flowContext)
 			throws Exception {
-		String url = task.getScript();
+		String url = StringUtils.trim(task.getScript());
 		URL urlObject = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection)urlObject.openConnection();
 		

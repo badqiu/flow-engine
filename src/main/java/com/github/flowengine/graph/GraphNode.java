@@ -19,7 +19,7 @@ public class GraphNode<T extends GraphNode> implements Serializable {
 	/**
 	 * 节点ID
 	 */
-	private String graphNodeId;
+	private String id;
 	/**
 	 * 节点依赖的节点
 	 */
@@ -39,12 +39,12 @@ public class GraphNode<T extends GraphNode> implements Serializable {
 	
 	public GraphNode(String graphNodeId) {
 		super();
-		this.graphNodeId = graphNodeId;
+		this.id = graphNodeId;
 	}
 	
 	public GraphNode(String graphNodeId, String depends) {
 		super();
-		this.graphNodeId = graphNodeId;
+		this.id = graphNodeId;
 		this.depends = depends;
 	}
 
@@ -56,12 +56,12 @@ public class GraphNode<T extends GraphNode> implements Serializable {
 		this.depends = depends;
 	}
 
-	public String getGraphNodeId() {
-		return graphNodeId;
+	public String getId() {
+		return id;
 	}
 
-	public void setGraphNodeId(String id) {
-		this.graphNodeId = id;
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public List<T> getChilds() {
@@ -96,7 +96,7 @@ public class GraphNode<T extends GraphNode> implements Serializable {
 	
 	public String dump(int tabsCount) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(StringUtils.repeat("\t", tabsCount)+getGraphNodeId());
+		sb.append(StringUtils.repeat("\t", tabsCount)+getId());
 		for(T n : getChilds()) {
 			sb.append("\n"+n.dump(tabsCount+1));
 		}
@@ -107,7 +107,7 @@ public class GraphNode<T extends GraphNode> implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((getGraphNodeId() == null) ? 0 : getGraphNodeId().hashCode());
+		result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
 		return result;
 	}
 
@@ -120,10 +120,10 @@ public class GraphNode<T extends GraphNode> implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		GraphNode other = (GraphNode) obj;
-		if (getGraphNodeId() == null) {
-			if (other.getGraphNodeId() != null)
+		if (getId() == null) {
+			if (other.getId() != null)
 				return false;
-		} else if (!getGraphNodeId().equals(other.getGraphNodeId()))
+		} else if (!getId().equals(other.getId()))
 			return false;
 		return true;
 	}

@@ -120,7 +120,7 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	}
 	public void setTaskCode(String taskCode) {
 		this.taskCode = taskCode;
-		setGraphNodeId(taskCode);
+		setId(taskCode);
 	}
 	public String getTaskModule() {
 		return taskModule;
