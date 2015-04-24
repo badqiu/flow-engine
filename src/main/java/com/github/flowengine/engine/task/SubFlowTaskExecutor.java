@@ -16,10 +16,10 @@ public class SubFlowTaskExecutor implements TaskExecutor{
 	public void exec(FlowTask task, FlowContext flowContext) throws InterruptedException {
 		String flowCode = StringUtils.trim(task.getScript());
 		Flow flow = flowContext.getFlowEngine().getRequiredFlow(flowCode);
-		FlowContext subFlowContext = flowContext.getFlowEngine().exec(flow, flowContext.getParams());
 		long start = System.currentTimeMillis();
+		FlowContext subFlowContext = flowContext.getFlowEngine().exec(flow, flowContext.getParams());
 		subFlowContext.awaitTermination();
-		logger.info("exec sub flow:"+flowCode+" cost:"+(start - System.currentTimeMillis()));
+		logger.info("exec sub flow:"+flowCode+" cost:"+(System.currentTimeMillis() - start));
 	}
 
 }

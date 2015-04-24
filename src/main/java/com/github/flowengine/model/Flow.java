@@ -43,8 +43,8 @@ public class Flow extends FlowDef<FlowTask>{
 	/**
 	 * 初始化图
 	 */
-	public void init() {
-		super.init();
+	public void init(boolean ignoreNotFoundDependsError) {
+		super.init(ignoreNotFoundDependsError);
 		for(FlowTask flowTask : super.getNodes()) {
 			if(CollectionUtils.isNotEmpty(flowTask.getParents())) {
 				Set<FlowTask> unFinishParents = new HashSet<FlowTask>(flowTask.getParents());
