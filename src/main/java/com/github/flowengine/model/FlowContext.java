@@ -90,10 +90,14 @@ public class FlowContext implements Serializable {
 		listenerable.addListener(t);
 	}
 	
-	public void awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+	public boolean awaitTermination() throws InterruptedException {
+		return awaitTermination(9999999,TimeUnit.DAYS);
+	}
+	
+	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
 		ExecutorService executorService = getExecutorService();
 		executorService.shutdown();
-		executorService.awaitTermination(timeout, unit);
+		return executorService.awaitTermination(timeout, unit);
 	}
 	
 }

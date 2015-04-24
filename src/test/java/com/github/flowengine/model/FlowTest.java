@@ -16,7 +16,7 @@ public class FlowTest {
 	private Flow f = new Flow();
 	@Before
 	public void setUp() {
-		f.setFlowCode("demo_flow");
+		f.setFlowId("demo_flow");
 		f.setMaxParallel(3);
 		
 		FlowTask startTask = new FlowTask("start");

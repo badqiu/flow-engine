@@ -17,7 +17,7 @@ import com.github.flowengine.graph.GraphNode;
 public class FlowDef <T extends GraphNode> extends Graph<T> implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	private String flowCode; //流程代码
+	private String flowId; //流程代码
 	private String flowName; //名称
 	private String remarks; //备注
 	/**
@@ -56,11 +56,11 @@ public class FlowDef <T extends GraphNode> extends Graph<T> implements Serializa
 	public FlowDef() {
 	}
 	
-	public String getFlowCode() {
-		return flowCode;
+	public String getFlowId() {
+		return flowId;
 	}
-	public void setFlowCode(String flowCode) {
-		this.flowCode = flowCode;
+	public void setFlowId(String flowCode) {
+		this.flowId = flowCode;
 	}
 	public String getFlowName() {
 		return flowName;

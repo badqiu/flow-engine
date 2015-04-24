@@ -41,6 +41,7 @@ public class FlowEngine {
 
 	public FlowContext exec(Flow flow, String startTaskCode, FlowContext context) {
 		FlowTask task = flow.getNode(startTaskCode);
+		Assert.notNull(task,"not found task by code:"+startTaskCode);
 		task.exec(context,false,true);
 		return context;
 	}
@@ -63,10 +64,18 @@ public class FlowEngine {
 	public void addFlow(Flow flow) {
 		flows.add(flow);
 	}
+	
+	public Set<Flow> getFlows() {
+		return flows;
+	}
+
+	public void setFlows(Set<Flow> flows) {
+		this.flows = flows;
+	}
 
 	public Flow getFlow(String flowCode) {
 		for(Flow f : flows) {
-			if(f.getFlowCode().equals(flowCode)) {
+			if(f.getFlowId().equals(flowCode)) {
 				return f;
 			}
 		}

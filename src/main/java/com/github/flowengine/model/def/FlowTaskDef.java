@@ -17,8 +17,8 @@ import com.github.flowengine.graph.GraphNode;
 public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements Serializable {
 	private static final long serialVersionUID = 8556055799573541106L;
 	
-	private String flowCode;//流程代码
-	private String taskCode;//任务代码
+	private String flowId;//流程代码
+	private String taskId;//任务代码
 	
 	private String taskModule; //任务所属模块,无用属性
 	private String taskName;//任务名称
@@ -105,21 +105,21 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	
 	public FlowTaskDef(String flowCode, String taskCode) {
 		super(taskCode);
-		this.flowCode = flowCode;
-		this.taskCode = taskCode;
+		this.flowId = flowCode;
+		this.taskId = taskCode;
 	}
 	
-	public String getFlowCode() {
-		return flowCode;
+	public String getFlowId() {
+		return flowId;
 	}
-	public void setFlowCode(String flowCode) {
-		this.flowCode = flowCode;
+	public void setFlowId(String flowCode) {
+		this.flowId = flowCode;
 	}
-	public String getTaskCode() {
-		return taskCode;
+	public String getTaskId() {
+		return taskId;
 	}
-	public void setTaskCode(String taskCode) {
-		this.taskCode = taskCode;
+	public void setTaskId(String taskCode) {
+		this.taskId = taskCode;
 		setId(taskCode);
 	}
 	public String getTaskModule() {
@@ -291,7 +291,7 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 
 	@Override
 	public String toString() {
-		return "FlowTaskDef [flowCode=" + flowCode + ", taskCode=" + taskCode
+		return "FlowTaskDef [flowId=" + flowId + ", taskId=" + taskId
 				+ ", taskModule=" + taskModule + ", taskName=" + taskName
 				+ ", remarks=" + remarks + ", enabled=" + enabled
 				+ ", retryTimes=" + retryTimes + ", retryInterval="

@@ -146,6 +146,9 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	}
 	
 	public void addTaskLog(String txt) {
+		if(taskLog == null) {
+			taskLog = new StringBuilder();
+		}
 		this.taskLog.append(txt);
 	}
 

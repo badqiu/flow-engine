@@ -37,7 +37,7 @@ public class Flow extends FlowDef<FlowTask>{
 	public Flow(String flowCode,String instanceId) {
 		super();
 		this.instanceId = instanceId;
-		setFlowCode(flowCode);
+		setFlowId(flowCode);
 	}
 	
 	/**
