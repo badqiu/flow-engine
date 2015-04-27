@@ -1,5 +1,6 @@
 package com.github.flowengine.engine;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,10 @@ import java.util.concurrent.Executors;
 
 import org.springframework.util.Assert;
 
+import com.github.flowengine.engine.task.CmdTaskExecutor;
+import com.github.flowengine.engine.task.GroovyTaskExecutor;
+import com.github.flowengine.engine.task.HttpTaskExecutor;
+import com.github.flowengine.engine.task.SubFlowTaskExecutor;
 import com.github.flowengine.model.Flow;
 import com.github.flowengine.model.FlowContext;
 import com.github.flowengine.model.FlowTask;
@@ -16,6 +21,21 @@ import com.github.flowengine.model.FlowTask;
 public class FlowEngine {
 
 	private Set<Flow> flows = new HashSet<Flow> ();
+	private Map<String,TaskExecutor> taskExecutorShortNames = new HashMap<String,TaskExecutor>();
+	{
+		registerTaskExecutor("subflow",new SubFlowTaskExecutor());
+		registerTaskExecutor("cmd",new CmdTaskExecutor());
+		registerTaskExecutor("http",new HttpTaskExecutor());
+		registerTaskExecutor("groovy",new GroovyTaskExecutor());
+	}
+	
+	public void registerTaskExecutor(String shortName,TaskExecutor executor) {
+		taskExecutorShortNames.put(shortName,executor);
+	}
+	
+	public TaskExecutor getTaskExecutor(String shortName) {
+		return taskExecutorShortNames.get(shortName);
+	}
 	
 	public FlowContext exec(String flowCode,String startTaskCode,Map params) {
 		Flow flow = getRequiredFlow(flowCode);

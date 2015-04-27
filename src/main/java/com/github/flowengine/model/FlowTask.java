@@ -16,6 +16,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import com.github.flowengine.engine.AsyncTaskExecutor;
@@ -31,6 +33,8 @@ import com.github.rapid.common.util.ScriptEngineUtil;
  */
 public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTask>{
 
+	private static Logger logger = LoggerFactory.getLogger(FlowTask.class);
+	
 	private String instanceId; //实例ID
 	private String flowInstanceId; //任务执行批次ID,可以使用如( flow instanceId填充)
 	
@@ -240,14 +244,19 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		if(CollectionUtils.isNotEmpty(getUnFinishParents())) {
 			return;
 		}
+		if(!isEnabled()) {
+			throw new RuntimeException("task no enabled,taskId:"+getTaskId());
+		}
+		
 		Assert.hasText(getScriptType(),"scriptType must be not empty");
+		
 //		String flowCodeWithTaskCode = getFlowCode() + "/" + getTaskCode();
 //		if(context.getVisitedTaskCodes().contains(flowCodeWithTaskCode)) {
 //			return;
 //		}
 //		context.getVisitedTaskCodes().add(flowCodeWithTaskCode);
 		
-		TaskExecutor executor = (TaskExecutor)Class.forName(getScriptType()).newInstance();
+		TaskExecutor executor = lookupTaskExecutor(context);
 		execStartTime = new Date();
 		evalGroovy(context,getBeforeGroovy());
 		
@@ -263,12 +272,13 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			long start = System.currentTimeMillis();
 			try {
 				status = "RUNNING";
+				logger.info("start execute task,id:"+getTaskId()+" usedRetryTimes:"+this.usedRetryTimes+" TaskExecutor:"+executor+" exception:"+exception);
+				
 				this.exception = null;
 				
 				if(getPreSleepTime() > 0) {
 					Thread.sleep(getPreSleepTime());
 				}
-				
 				
 				notifyListeners();
 				executor.exec(this, context);
@@ -287,7 +297,6 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				
 				evalGroovy(context,getAfterGroovy());
 				
-				
 				notifyListeners();
 				break;
 			}catch(Exception e) {
@@ -296,7 +305,6 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 					this.execResult = (this.execResult == 0) ? 1 : this.execResult;
 					break;
 				}
-//				Assert.isTrue(getRetryInterval() > 0," getRetryInterval() > 0 must be true");
 				this.usedRetryTimes = this.usedRetryTimes + 1;
 				notifyListeners();
 				if(getRetryInterval() > 0) {
@@ -321,6 +329,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		}else {
 			if(exception != null) {
 				addTaskLog( ExceptionUtils.getFullStackTrace(exception) );
+				logger.error("error execute on taskId:"+getTaskId(),exception);
 			}
 		}
 		
@@ -338,6 +347,16 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			context.getFlow().setExecResult(1);
 		}
 		
+	}
+
+	private TaskExecutor lookupTaskExecutor(FlowContext context) throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
+		Assert.hasText(getScriptType(),"scriptType must be not empty");
+		TaskExecutor taskExecutor = context.getFlowEngine().getTaskExecutor(getScriptType());
+		if(taskExecutor == null) {
+			return (TaskExecutor)Class.forName(getScriptType()).newInstance();
+		}
+		return taskExecutor;
 	}
 
 	private void evalGroovy(final FlowContext context,String script) {
