@@ -300,6 +300,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				notifyListeners();
 				break;
 			}catch(Exception e) {
+				logger.warn("exec "+getTaskId()+" error",e);
 				this.exception = e;
 				if(this.usedRetryTimes >= getRetryTimes()) {
 					this.execResult = (this.execResult == 0) ? 1 : this.execResult;

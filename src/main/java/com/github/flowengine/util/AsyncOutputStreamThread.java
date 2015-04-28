@@ -14,7 +14,7 @@ public class AsyncOutputStreamThread extends Thread{
 	private InputStream input;
 	private OutputStream output;
 	
-	public AsyncOutputStreamThread(InputStream inputStream,OutputStream output) {
+	public AsyncOutputStreamThread(InputStream input,OutputStream output) {
 		this.input = input;
 		this.output = output;
 	}
