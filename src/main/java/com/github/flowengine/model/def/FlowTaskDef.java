@@ -23,7 +23,7 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	private String taskModule; //任务所属模块,无用属性
 	private String taskName;//任务名称
 	private String remarks; //任务备注
-	private boolean enabled = true;//任务是否激活
+	private Boolean enabled = true;//任务是否激活
 	
 	private int retryTimes;//错误重试次数
 	private int retryInterval; //错误重试间隔
@@ -101,6 +101,7 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	private Date modifiedTime;
 	
 	public FlowTaskDef() {
+		this.enabled = true;
 	}
 	
 	public FlowTaskDef(String flowCode, String taskCode) {
@@ -140,10 +141,10 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
 	}
-	public boolean isEnabled() {
+	public Boolean isEnabled() {
 		return enabled;
 	}
-	public void setEnabled(boolean enabled) {
+	public void setEnabled(Boolean enabled) {
 		this.enabled = enabled;
 	}
 	public int getRetryTimes() {
@@ -291,7 +292,7 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 
 	@Override
 	public String toString() {
-		return "FlowTaskDef [flowId=" + flowId + ", taskId=" + taskId
+		return "FlowTaskDef [flowId=" + getFlowId() + ", taskId=" + getTaskId()
 				+ ", taskModule=" + taskModule + ", taskName=" + taskName
 				+ ", remarks=" + remarks + ", enabled=" + enabled
 				+ ", retryTimes=" + retryTimes + ", retryInterval="
