@@ -32,9 +32,9 @@ public class CmdTaskExecutor implements TaskExecutor{
 			new AsyncOutputStreamThread(process.getErrorStream(),System.err).start();
 		}
 		
-		process.waitFor();
+		int exitValue = process.waitFor();
 		
-		int exitValue = process.exitValue();
+		logger.info("exec exitValue:" + exitValue + "  with cmd:"+cmd);
 		if(exitValue == 0) {
 			return;
 		}else {
