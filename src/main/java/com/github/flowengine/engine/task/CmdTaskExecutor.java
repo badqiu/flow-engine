@@ -1,7 +1,9 @@
 package com.github.flowengine.engine.task;
 
 import java.io.IOException;
+import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,15 +27,21 @@ public class CmdTaskExecutor implements TaskExecutor{
 		logger.info("exec cmd:"+cmd);
 		Process process = Runtime.getRuntime().exec(cmd);
 		
+		InputStream processInputStream = null;
 		if(process != null && process.getInputStream() != null){ 
-			new AsyncOutputStreamThread(process.getInputStream(),System.out).start();
+			processInputStream = process.getInputStream();
+			new AsyncOutputStreamThread(processInputStream,System.out).start();
 		}
+		InputStream processErrorStream = null;
 		if(process != null && process.getErrorStream() != null) {
-			new AsyncOutputStreamThread(process.getErrorStream(),System.err).start();
+			processErrorStream = process.getErrorStream();
+			new AsyncOutputStreamThread(processErrorStream,System.err).start();
 		}
 		
 		int exitValue = process.waitFor();
 		
+		IOUtils.closeQuietly(processInputStream);
+		IOUtils.closeQuietly(processErrorStream);
 		logger.info("exec exitValue:" + exitValue + "  with cmd:"+cmd);
 		if(exitValue == 0) {
 			return;

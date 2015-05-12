@@ -13,10 +13,17 @@ public class AsyncOutputStreamThread extends Thread{
 	private static Logger logger = LoggerFactory.getLogger(AsyncOutputStreamThread.class);
 	private InputStream input;
 	private OutputStream output;
+	private boolean closedInputOutput = false;
 	
 	public AsyncOutputStreamThread(InputStream input,OutputStream output) {
 		this.input = input;
 		this.output = output;
+	}
+	
+	public AsyncOutputStreamThread(InputStream input,OutputStream output,boolean closedInputOutput) {
+		this.input = input;
+		this.output = output;
+		this.closedInputOutput = closedInputOutput;
 	}
 	
 	public void run() {
@@ -27,8 +34,10 @@ public class AsyncOutputStreamThread extends Thread{
 				logger.error("io copy error",e);
 			}
 		}finally {
-			IOUtils.closeQuietly(input);
-			IOUtils.closeQuietly(output);
+			if(closedInputOutput) {
+				IOUtils.closeQuietly(input);
+				IOUtils.closeQuietly(output);
+			}
 		}
 	}
 

@@ -1,5 +1,7 @@
 package com.github.flowengine.engine.task;
 
+import java.io.IOException;
+
 import org.junit.Test;
 
 import com.github.flowengine.model.FlowContext;
@@ -25,6 +27,16 @@ public class CmdTaskExecutorTest {
 		FlowTask task = new FlowTask();
 		task.setScript(cmd);
 		e.exec(task, new FlowContext());
+	}
+	
+	@Test
+	public void test() throws IOException, InterruptedException {
+		try {
+			CmdTaskExecutor.execCmd("cmd.exe /c echo.exe 'hello world'");
+		}finally {
+			System.out.println("exec end");
+			System.out.flush();
+		}
 	}
 
 }
