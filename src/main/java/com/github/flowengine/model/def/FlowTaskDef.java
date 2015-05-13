@@ -28,7 +28,7 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	private int retryTimes;//错误重试次数
 	private int retryInterval; //错误重试间隔
 	/**
-     * 最终失败是否可忽略       db_column: is_ignore_error TODO: 与retryTimes有点重,无限重试可完成该功能
+     * 最终失败是否可忽略       db_column: is_ignore_error 
      */ 	
 	private boolean isIgnoreError;
 	/**

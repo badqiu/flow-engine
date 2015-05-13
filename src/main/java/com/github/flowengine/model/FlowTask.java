@@ -269,7 +269,6 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 //			}
 //		});
 		while(true) {
-			long start = System.currentTimeMillis();
 			try {
 				status = "RUNNING";
 				logger.info("start execute task,id:"+getTaskId()+" usedRetryTimes:"+this.usedRetryTimes+" TaskExecutor:"+executor+" exception:"+exception);
@@ -301,6 +300,9 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				break;
 			}catch(Exception e) {
 				logger.warn("exec "+getTaskId()+" error",e);
+				if(isTimeout()) {
+					break;
+				}
 				this.exception = e;
 				if(this.usedRetryTimes >= getRetryTimes()) {
 					this.execResult = (this.execResult == 0) ? 1 : this.execResult;
@@ -312,11 +314,8 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 					Thread.sleep(getRetryInterval());
 				}
 			}finally {
-				this.execCostTime = System.currentTimeMillis() - start;
-				if(getTimeout() > 0) {
-					if(this.execCostTime > getTimeout() ) {
-						break;
-					}
+				if(isTimeout()) {
+					break;
 				}
 			}
 		}
@@ -348,6 +347,16 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			context.getFlow().setExecResult(1);
 		}
 		
+	}
+
+	private boolean isTimeout() {
+		this.execCostTime =  execStartTime.getTime() - System.currentTimeMillis();
+		if(getTimeout() > 0) {
+			if(this.execCostTime > getTimeout() ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private TaskExecutor lookupTaskExecutor(FlowContext context) throws InstantiationException,
