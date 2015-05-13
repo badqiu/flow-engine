@@ -59,8 +59,8 @@ public class FlowDef <T extends GraphNode> extends Graph<T> implements Serializa
 	public String getFlowId() {
 		return flowId;
 	}
-	public void setFlowId(String flowCode) {
-		this.flowId = flowCode;
+	public void setFlowId(String flowId) {
+		this.flowId = flowId;
 	}
 	public String getFlowName() {
 		return flowName;

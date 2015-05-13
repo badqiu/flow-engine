@@ -23,7 +23,7 @@ public class FlowContext implements Serializable {
 	private Map params = new HashMap(); // 流程参数
 	private Flow flow; // 流程
 	private Map context = new HashMap(); //保存上下文内容
-//	private List<String> visitedTaskCodes = new ArrayList<String>(); //已经访问过的流程任务节点
+//	private List<String> visitedtaskIds = new ArrayList<String>(); //已经访问过的流程任务节点
 	
 	private transient Listenerable<FlowContext> listenerable = new Listenerable<FlowContext>();
 	
@@ -51,12 +51,12 @@ public class FlowContext implements Serializable {
 		this.flow = flow;
 	}
 
-//	public List<String> getVisitedTaskCodes() {
-//		return visitedTaskCodes;
+//	public List<String> getVisitedtaskIds() {
+//		return visitedtaskIds;
 //	}
 //
-//	public void setVisitedTaskCodes(List<String> visitedTaskCodes) {
-//		this.visitedTaskCodes = visitedTaskCodes;
+//	public void setVisitedtaskIds(List<String> visitedtaskIds) {
+//		this.visitedtaskIds = visitedtaskIds;
 //	}
 
 	public FlowEngine getFlowEngine() {
@@ -67,8 +67,8 @@ public class FlowContext implements Serializable {
 		this.flowEngine = flowEngine;
 	}
 	
-//	public void addVisitedTaskCode1(String taskCode) {
-//		getVisitedTaskCodes().add(taskCode);
+//	public void addVisitedtaskId1(String taskId) {
+//		getVisitedtaskIds().add(taskId);
 //		notifyListeners();
 //	}
 	

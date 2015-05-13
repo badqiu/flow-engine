@@ -37,9 +37,9 @@ public class FlowEngine {
 		return taskExecutorShortNames.get(shortName);
 	}
 	
-	public FlowContext exec(String flowCode,String startTaskCode,Map params) {
-		Flow flow = getRequiredFlow(flowCode);
-		return exec(flow,startTaskCode, params);
+	public FlowContext exec(String flowId,String startTaskId,Map params) {
+		Flow flow = getRequiredFlow(flowId);
+		return exec(flow,startTaskId, params);
 	}
 
 	public FlowContext exec(Flow flow,List<FlowTask> tasks, Map params) {
@@ -53,15 +53,15 @@ public class FlowEngine {
 		return exec(flow,flow.getNoDependNodes(),params);
 	}
 	
-	public FlowContext exec(Flow flow,String startTaskCode, Map params) {
+	public FlowContext exec(Flow flow,String startTaskId, Map params) {
 		Assert.isTrue(flow.getMaxParallel() > 0,"flow.getMaxParallel() > 0 must be true");
 		FlowContext context = newFlowContext(params, flow);
-		return exec(flow, startTaskCode, context);
+		return exec(flow, startTaskId, context);
 	}
 
-	public FlowContext exec(Flow flow, String startTaskCode, FlowContext context) {
-		FlowTask task = flow.getNode(startTaskCode);
-		Assert.notNull(task,"not found task by code:"+startTaskCode);
+	public FlowContext exec(Flow flow, String startTaskId, FlowContext context) {
+		FlowTask task = flow.getNode(startTaskId);
+		Assert.notNull(task,"not found by taskId:"+startTaskId);
 		task.exec(context,false,true);
 		return context;
 	}
@@ -93,19 +93,19 @@ public class FlowEngine {
 		this.flows = flows;
 	}
 
-	public Flow getFlow(String flowCode) {
+	public Flow getFlow(String flowId) {
 		for(Flow f : flows) {
-			if(f.getFlowId().equals(flowCode)) {
+			if(f.getFlowId().equals(flowId)) {
 				return f;
 			}
 		}
 		return null;
 	}
 	
-	public Flow getRequiredFlow(String flowCode) {
-		Flow flow = getFlow(flowCode);
+	public Flow getRequiredFlow(String flowId) {
+		Flow flow = getFlow(flowId);
 		if(flow == null) {
-			throw new RuntimeException("not found flow by code:"+flowCode);
+			throw new RuntimeException("not found by flowId:"+flowId);
 		}
 		return flow;
 	}

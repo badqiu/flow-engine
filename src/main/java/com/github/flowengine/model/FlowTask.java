@@ -72,22 +72,22 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	public FlowTask() {
 	}
 	
-	public FlowTask(String taskCode) {
-		this(null,taskCode);
+	public FlowTask(String taskId) {
+		this(null,taskId);
 	}
 	
-	public FlowTask(String flowCode, String taskCode) {
-		super(flowCode,taskCode);
+	public FlowTask(String flowId, String taskId) {
+		super(flowId,taskId);
 	}
 	
-	public FlowTask(String taskCode,String depends,Class<? extends TaskExecutor> scriptType) {
-		this(null,taskCode);
+	public FlowTask(String taskId,String depends,Class<? extends TaskExecutor> scriptType) {
+		this(null,taskId);
 		setDepends(depends);
 		setScriptType(scriptType);
 	}
 	
-	public FlowTask(String flowCode, String taskCode,String instanceId,String flowInstanceId) {
-		super(flowCode, taskCode);
+	public FlowTask(String flowId, String taskId,String instanceId,String flowInstanceId) {
+		super(flowId, taskId);
 		this.instanceId = instanceId;
 		this.flowInstanceId = flowInstanceId;
 	}
@@ -250,11 +250,11 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		
 		Assert.hasText(getScriptType(),"scriptType must be not empty");
 		
-//		String flowCodeWithTaskCode = getFlowCode() + "/" + getTaskCode();
-//		if(context.getVisitedTaskCodes().contains(flowCodeWithTaskCode)) {
+//		String flowIdWithtaskId = getflowId() + "/" + gettaskId();
+//		if(context.getVisitedtaskIds().contains(flowIdWithtaskId)) {
 //			return;
 //		}
-//		context.getVisitedTaskCodes().add(flowCodeWithTaskCode);
+//		context.getVisitedtaskIds().add(flowIdWithtaskId);
 		
 		TaskExecutor executor = lookupTaskExecutor(context);
 		execStartTime = new Date();

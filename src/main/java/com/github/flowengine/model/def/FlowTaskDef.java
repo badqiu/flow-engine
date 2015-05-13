@@ -104,24 +104,24 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 		this.enabled = true;
 	}
 	
-	public FlowTaskDef(String flowCode, String taskCode) {
-		super(taskCode);
-		this.flowId = flowCode;
-		this.taskId = taskCode;
+	public FlowTaskDef(String flowId, String taskId) {
+		super(taskId);
+		this.flowId = flowId;
+		this.taskId = taskId;
 	}
 	
 	public String getFlowId() {
 		return flowId;
 	}
-	public void setFlowId(String flowCode) {
-		this.flowId = flowCode;
+	public void setFlowId(String flowId) {
+		this.flowId = flowId;
 	}
 	public String getTaskId() {
 		return taskId;
 	}
-	public void setTaskId(String taskCode) {
-		this.taskId = taskCode;
-		setId(taskCode);
+	public void setTaskId(String taskId) {
+		this.taskId = taskId;
+		setId(taskId);
 	}
 	public String getTaskModule() {
 		return taskModule;
