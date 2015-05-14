@@ -141,12 +141,12 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		this.execStartTime = execStartTime;
 	}
 
-	public java.lang.StringBuilder getTaskLog() {
-		return taskLog;
+	public String getTaskLog() {
+		return taskLog == null ? null : taskLog.toString();
 	}
 
-	public void setTaskLog(java.lang.StringBuilder taskLog) {
-		this.taskLog = taskLog;
+	public void setTaskLog(String taskLog) {
+		this.taskLog = new StringBuilder(StringUtils.defaultString(taskLog));
 	}
 	
 	public void addTaskLog(String txt) {
@@ -350,7 +350,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	}
 
 	private boolean isTimeout() {
-		this.execCostTime =  execStartTime.getTime() - System.currentTimeMillis();
+		this.execCostTime =  System.currentTimeMillis() - execStartTime.getTime();
 		if(getTimeout() > 0) {
 			if(this.execCostTime > getTimeout() ) {
 				return true;
