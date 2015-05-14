@@ -30,7 +30,7 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	/**
      * 最终失败是否可忽略       db_column: is_ignore_error 
      */ 	
-	private boolean isIgnoreError;
+	private boolean ignoreError;
 	/**
      * 任务执行前睡眠等待时间(秒) 
      */ 	
@@ -160,10 +160,10 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 		this.retryInterval = retryInterval;
 	}
 	public boolean isIgnoreError() {
-		return isIgnoreError;
+		return ignoreError;
 	}
-	public void setIgnoreError(boolean isIgnoreError) {
-		this.isIgnoreError = isIgnoreError;
+	public void setIgnoreError(boolean ignoreError) {
+		this.ignoreError = ignoreError;
 	}
 	public int getPreSleepTime() {
 		return preSleepTime;
@@ -296,7 +296,7 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 				+ ", taskModule=" + taskModule + ", taskName=" + taskName
 				+ ", remarks=" + remarks + ", enabled=" + enabled
 				+ ", retryTimes=" + retryTimes + ", retryInterval="
-				+ retryInterval + ", isIgnoreError=" + isIgnoreError
+				+ retryInterval + ", ignoreError=" + ignoreError
 				+ ", preSleepTime=" + preSleepTime + ", timeout=" + timeout
 				+ ", execAgent=" + execAgent + ", script=" + script
 				+ ", scriptType=" + scriptType + ", offlineTime="
