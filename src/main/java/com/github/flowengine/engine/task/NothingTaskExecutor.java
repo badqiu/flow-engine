@@ -17,7 +17,7 @@ public class NothingTaskExecutor implements TaskExecutor{
 	private static Logger logger = LoggerFactory.getLogger(NothingTaskExecutor.class);
 	@Override
 	public void exec(FlowTask task, FlowContext flowContext) {
-		logger.info("do no thing,taskId:"+task.getId());
+		logger.info("do no thing,taskId:"+task.getId()+" script:"+task.getScript());
 	}
 
 }
