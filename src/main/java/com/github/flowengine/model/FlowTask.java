@@ -179,7 +179,15 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	public void setUsedRetryTimes(int usedRetryTimes) {
 		this.usedRetryTimes = usedRetryTimes;
 	}
+	
+	public boolean isExecFail() {
+		return !isExecSuccess();
+	}
 
+	public boolean isExecSuccess() {
+		return getExecResult() == 0;
+	}
+	
 	public Map getContext() {
 		return context;
 	}
