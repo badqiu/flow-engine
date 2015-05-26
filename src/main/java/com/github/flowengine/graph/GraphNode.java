@@ -25,6 +25,8 @@ public class GraphNode<T extends GraphNode> implements Serializable {
 	 */
 	private String depends;
 
+	private Graph<T> graph;
+	
 	/**
 	 * 根据depends,计算得到,当前Node所有的孩子
 	 */
@@ -33,6 +35,7 @@ public class GraphNode<T extends GraphNode> implements Serializable {
 	 * 根据depends,计算得到,当前Node所有的父亲
 	 */
 	private List<T> parents = new ArrayList<T>();
+	
 
 	public GraphNode() {
 	}
@@ -46,6 +49,14 @@ public class GraphNode<T extends GraphNode> implements Serializable {
 		super();
 		this.id = graphNodeId;
 		this.depends = depends;
+	}
+
+	public Graph<T> getGraph() {
+		return graph;
+	}
+
+	public void setGraph(Graph<T> graph) {
+		this.graph = graph;
 	}
 
 	public String getDepends() {

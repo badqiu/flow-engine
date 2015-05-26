@@ -35,6 +35,9 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 
 	private static Logger logger = LoggerFactory.getLogger(FlowTask.class);
 	
+	public static String STATUS_RUNNING = "RUNNING";
+	public static String STATUS_END = "END";
+	
 	private String instanceId; //实例ID
 	private String flowInstanceId; //任务执行批次ID,可以使用如( flow instanceId填充)
 	
@@ -278,7 +281,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 //		});
 		while(true) {
 			try {
-				status = "RUNNING";
+				status = STATUS_RUNNING;
 				logger.info("start execute task,id:"+getTaskId()+" usedRetryTimes:"+this.usedRetryTimes+" TaskExecutor:"+executor+" exception:"+exception);
 				
 				this.exception = null;
@@ -341,7 +344,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			}
 		}
 		
-		this.status = "END";
+		this.status = STATUS_END;
 		notifyListeners();
 		
 		//执行成功,或者执行不成功但失败可忽略,在其孩子的未完成父亲集合中去掉当前任务

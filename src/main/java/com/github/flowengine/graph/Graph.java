@@ -34,6 +34,9 @@ public class Graph <NODE extends GraphNode> implements Serializable {
 	}
 
 	public void init(boolean ignoreNotFoundDependError) {
+		for(GraphNode node : nodes) {
+			node.setGraph(this);
+		}
 		initAllNodeDepends(ignoreNotFoundDependError);
 	}
 	
