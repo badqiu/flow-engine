@@ -44,6 +44,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	
 	private String status; //任务状态: 可运行,运行中,阻塞(睡眠,等待),停止
 	private int execResult = Integer.MIN_VALUE; //执行结果: 0成功,非0为失败
+	private boolean executed = false; // 是否已经执行
 	private boolean forceExec; //是否强制执行
 	private int usedRetryTimes; //已经重试执行次数
 	/**
@@ -127,6 +128,10 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 
 	public void setExecResult(int execResult) {
 		this.execResult = execResult;
+	}
+	
+	public boolean isExecuted() {
+		return executed;
 	}
 
 	public long getExecCostTime() {
@@ -223,6 +228,9 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	}
 
 	public void exec(final FlowContext context,final boolean execParents,final boolean execChilds) {
+		executed = true;
+		logger.info("start exec task,id:" + getId() + "execParents:"+execParents+" execChilds:"+execChilds);
+		
 		beforeExec(context);
 		
 		if(execParents) {
@@ -231,7 +239,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		
 		
 		try {
-			execSelf(context);
+			execSelf(execParents,context);
 		} catch (Exception e) {
 			throw new RuntimeException("error on exec,flowTask:"+this,e);
 		} 
@@ -249,11 +257,11 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	protected void beforeExec(FlowContext context2) {
 	}
 
-	private synchronized void execSelf(final FlowContext context) throws InstantiationException,
+	private synchronized void execSelf(boolean execParents, final FlowContext context) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException,
 			InterruptedException, IOException {
 		//判断所有父亲是否已完全执行
-		if(CollectionUtils.isNotEmpty(getUnFinishParents())) {
+		if(execParents && CollectionUtils.isNotEmpty(getUnFinishParents())) {
 			return;
 		}
 		if(!isEnabled()) {
