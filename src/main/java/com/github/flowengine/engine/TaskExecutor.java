@@ -5,6 +5,6 @@ import com.github.flowengine.model.FlowTask;
 
 public interface TaskExecutor {
 
-	public void exec(FlowTask task, FlowContext flowContext) throws Exception;
+	public TaskExecResult exec(FlowTask task, FlowContext flowContext) throws Exception;
 	
 }

@@ -26,17 +26,17 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	private Boolean enabled = true;//任务是否激活
 	
 	private int retryTimes;//错误重试次数
-	private int retryInterval; //错误重试间隔
+	private int retryInterval; //错误重试间隔,单位(毫秒)
 	/**
      * 最终失败是否可忽略       db_column: is_ignore_error 
      */ 	
 	private boolean ignoreError;
 	/**
-     * 任务执行前睡眠等待时间(秒) 
+     * 任务执行前睡眠等待时间(毫秒) 
      */ 	
 	private int preSleepTime;	
 	/**
-	 * 任务执行超时时间,单位(秒)
+	 * 任务执行超时时间,单位(毫秒)
 	 */
 	private int timeout;
 	/**

@@ -2,6 +2,7 @@ package com.github.flowengine.engine.task;
 
 import java.util.Map;
 
+import com.github.flowengine.engine.TaskExecResult;
 import com.github.flowengine.engine.TaskExecutor;
 import com.github.flowengine.model.FlowContext;
 import com.github.flowengine.model.FlowTask;
@@ -14,10 +15,11 @@ import com.github.flowengine.model.FlowTask;
 public class AgentTaskExecutor implements TaskExecutor{
 
 	@Override
-	public void exec(FlowTask task, FlowContext flowContext) throws Exception {
+	public TaskExecResult exec(FlowTask task, FlowContext flowContext) throws Exception {
 		String agentUrl = task.getExecAgent();
 		Agent agent = new Agent(agentUrl);
 		agent.exec(task, flowContext.getParams());
+		return null;
 	}
 
 	public static class Agent{

@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.flowengine.engine.TaskExecResult;
 import com.github.flowengine.engine.TaskExecutor;
 import com.github.flowengine.model.FlowContext;
 import com.github.flowengine.model.FlowTask;
@@ -19,7 +20,7 @@ public class HttpTaskExecutor implements TaskExecutor {
 	private static Logger logger = LoggerFactory.getLogger(HttpTaskExecutor.class);
 	
 	@Override
-	public void exec(FlowTask task, FlowContext flowContext)
+	public TaskExecResult exec(FlowTask task, FlowContext flowContext)
 			throws Exception {
 		String url = StringUtils.trim(task.getScript());
 		URL urlObject = new URL(url);
@@ -37,6 +38,8 @@ public class HttpTaskExecutor implements TaskExecutor {
 		}finally {
 			conn.disconnect();
 		}
+		
+		return null;
 	}
 
 	private String getResponseBody(HttpURLConnection conn) throws IOException {

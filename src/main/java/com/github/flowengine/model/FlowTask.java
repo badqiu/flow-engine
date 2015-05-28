@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import com.github.flowengine.engine.AsyncTaskExecutor;
+import com.github.flowengine.engine.TaskExecResult;
 import com.github.flowengine.engine.TaskExecutor;
 import com.github.flowengine.model.def.FlowTaskDef;
 import com.github.flowengine.util.Listener;
@@ -291,7 +292,10 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				}
 				
 				notifyListeners();
-				executor.exec(this, context);
+				TaskExecResult taskExecResult = executor.exec(this, context);
+				if(taskExecResult != null) {
+					addTaskLog(taskExecResult.getLog());
+				}
 				
 				waitIfRunning(executor, context, this);
 				
@@ -300,6 +304,8 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				}else {
 					this.execResult = 0;
 				}
+				
+				
 				
 				if(execResult != 0) {
 					throw new RuntimeException("execResult not zero,execResult:"+this.execResult);
@@ -339,7 +345,6 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			addTaskLog( IOUtils.toString(((AsyncTaskExecutor)executor).getLog(this, context.getParams())) );
 		}else {
 			if(exception != null) {
-				addTaskLog( ExceptionUtils.getFullStackTrace(exception) );
 				logger.error("error execute on taskId:"+getTaskId(),exception);
 			}
 		}
