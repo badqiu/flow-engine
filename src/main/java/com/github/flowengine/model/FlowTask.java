@@ -229,7 +229,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 
 	public void exec(final FlowContext context,final boolean execParents,final boolean execChilds) {
 		executed = true;
-		logger.info("start exec task,id:" + getId() + "execParents:"+execParents+" execChilds:"+execChilds);
+		logger.info("start exec task,id:" + getId() + " execParents:"+execParents+" execChilds:"+execChilds);
 		
 		beforeExec(context);
 		
@@ -270,24 +270,11 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		
 		Assert.hasText(getScriptType(),"scriptType must be not empty");
 		
-//		String flowIdWithtaskId = getflowId() + "/" + gettaskId();
-//		if(context.getVisitedtaskIds().contains(flowIdWithtaskId)) {
-//			return;
-//		}
-//		context.getVisitedtaskIds().add(flowIdWithtaskId);
-		
 		TaskExecutor executor = lookupTaskExecutor(context);
 		execStartTime = new Date();
 		evalGroovy(context,getBeforeGroovy());
 		
-		
-//		Retry.retry(getRetryTimes(), getRetryInterval(), getTimeout(), new Callable<Object>() {
-//			@Override
-//			public Object call() throws Exception {
-//				
-//				return null;
-//			}
-//		});
+
 		while(true) {
 			try {
 				status = STATUS_RUNNING;
@@ -301,19 +288,17 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				
 				notifyListeners();
 				TaskExecResult taskExecResult = executor.exec(this, context);
-				if(taskExecResult != null) {
-					addTaskLog(taskExecResult.getLog());
-				}
 				
 				waitIfRunning(executor, context, this);
 				
-				if(executor instanceof AsyncTaskExecutor) {
+				if(taskExecResult != null) {
+					addTaskLog(taskExecResult.getLog());
+					this.execResult = taskExecResult.getExitValue();
+				}else if(executor instanceof AsyncTaskExecutor) {
 					this.execResult = ((AsyncTaskExecutor)executor).getExitCode(this, context.getParams());
 				}else {
 					this.execResult = 0;
 				}
-				
-				
 				
 				if(execResult != 0) {
 					throw new RuntimeException("execResult not zero,execResult:"+this.execResult);
@@ -324,13 +309,14 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				notifyListeners();
 				break;
 			}catch(Exception e) {
+				this.execResult = this.execResult == 0 ? 1 : this.execResult;
+				
 				logger.warn("exec "+getTaskId()+" error",e);
 				if(isTimeout()) {
 					break;
 				}
 				this.exception = e;
 				if(this.usedRetryTimes >= getRetryTimes()) {
-					this.execResult = (this.execResult == 0) ? 1 : this.execResult;
 					break;
 				}
 				this.usedRetryTimes = this.usedRetryTimes + 1;
@@ -351,10 +337,6 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		
 		if(executor instanceof AsyncTaskExecutor) {
 			addTaskLog( IOUtils.toString(((AsyncTaskExecutor)executor).getLog(this, context.getParams())) );
-		}else {
-			if(exception != null) {
-				logger.error("error execute on taskId:"+getTaskId(),exception);
-			}
 		}
 		
 		this.status = STATUS_END;

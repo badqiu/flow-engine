@@ -23,12 +23,18 @@ public class CmdTaskExecutor implements TaskExecutor{
 	@Override
 	public TaskExecResult exec(FlowTask task, FlowContext flowContext) throws Exception {
 		String cmd = StringUtils.trim(task.getScript());
-		execCmd(cmd);
-		return null;
+		return execCmdForTaskExecResult(cmd);
 	}
 
 	public static TaskExecResult execCmd(String cmd) throws IOException, InterruptedException {
-		
+		TaskExecResult result =  execCmdForTaskExecResult(cmd);
+		if(result.getExitValue() != 0) {
+			throw new RuntimeException("error exit value:"+result.getExitValue()+" by script:"+cmd);
+		}
+		return result;
+	}
+
+	public static TaskExecResult execCmdForTaskExecResult(String cmd) throws IOException, InterruptedException {
 		logger.info("exec cmd:"+cmd);
 		Process process = Runtime.getRuntime().exec(cmd);
 		
@@ -51,11 +57,7 @@ public class CmdTaskExecutor implements TaskExecutor{
 		IOUtils.closeQuietly(processInputStream);
 		IOUtils.closeQuietly(processErrorStream);
 		logger.info("exec exitValue:" + exitValue + "  with cmd:"+cmd);
-		if(exitValue == 0) {
-			return new TaskExecResult(out.toString(),errOut.toString());
-		}else {
-			throw new RuntimeException("error exit value:"+exitValue+" by script:"+cmd);
-		}
+		return new TaskExecResult(exitValue,out.toString(),errOut.toString());
 	}
 
 }

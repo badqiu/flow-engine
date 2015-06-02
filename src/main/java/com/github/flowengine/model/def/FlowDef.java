@@ -53,6 +53,12 @@ public class FlowDef <T extends GraphNode> extends Graph<T> implements Serializa
 	 */
 	private Date modifiedTime;
 	
+	private int retryTimes;// 默认错误重试次数
+	private int retryInterval; // 默认错误重试间隔,单位(毫秒)
+	private int timeout; // 默认超时时间(毫秒)
+	private String scriptType; // 默认程序脚本类型
+	private Date offlineTime; // 默认程序下线时间
+	
 	public FlowDef() {
 	}
 	
