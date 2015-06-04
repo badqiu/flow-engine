@@ -321,6 +321,8 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				}
 				this.usedRetryTimes = this.usedRetryTimes + 1;
 				notifyListeners();
+				
+				logger.warn("retry exec "+getTaskId() + ",usedRetryTimes:"+usedRetryTimes+" retryInterval():"+getRetryInterval()+" exception:" + e.getMessage());
 				if(getRetryInterval() > 0) {
 					Thread.sleep(getRetryInterval());
 				}
