@@ -100,6 +100,8 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	 */
 	private Date modifiedTime;
 	
+	private transient TaskExecutor taskExecutor;
+	
 	public FlowTaskDef() {
 		this.enabled = true;
 	}
@@ -197,6 +199,12 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	}
 	public void setScriptType(Class<? extends TaskExecutor> clazz) {
 		setScriptType(clazz.getName());
+	}
+	public TaskExecutor getTaskExecutor() {
+		return taskExecutor;
+	}
+	public void setTaskExecutor(TaskExecutor taskExecutor) {
+		this.taskExecutor = taskExecutor;
 	}
 	public java.util.Date getOfflineTime() {
 		return offlineTime;

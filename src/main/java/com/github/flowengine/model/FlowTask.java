@@ -369,12 +369,15 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 
 	private TaskExecutor lookupTaskExecutor(FlowContext context) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		Assert.hasText(getScriptType(),"scriptType must be not empty");
-		TaskExecutor taskExecutor = context.getFlowEngine().getTaskExecutor(getScriptType());
-		if(taskExecutor == null) {
-			return (TaskExecutor)Class.forName(getScriptType()).newInstance();
+		if(getTaskExecutor() == null) {
+			Assert.hasText(getScriptType(),"scriptType must be not empty");
+			TaskExecutor taskExecutor = context.getFlowEngine().getTaskExecutor(getScriptType());
+			if(taskExecutor == null) {
+				return (TaskExecutor)Class.forName(getScriptType()).newInstance();
+			}
+			setTaskExecutor(taskExecutor);
 		}
-		return taskExecutor;
+		return getTaskExecutor();
 	}
 
 	private void evalGroovy(final FlowContext context,String script) {
