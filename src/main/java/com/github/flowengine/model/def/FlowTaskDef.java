@@ -99,7 +99,9 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	 * 最后修改时间
 	 */
 	private Date modifiedTime;
-	
+	/**
+	 * 通过scriptType生成的TaskExecutor
+	 */
 	private transient TaskExecutor taskExecutor;
 	
 	public FlowTaskDef() {
