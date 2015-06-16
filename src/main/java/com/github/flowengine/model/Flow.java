@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.github.flowengine.model.def.FlowDef;
 import com.github.flowengine.util.Listener;
@@ -45,6 +46,39 @@ public class Flow extends FlowDef<FlowTask>{
 	 */
 	public void init(boolean ignoreNotFoundDependsError) {
 		super.init(ignoreNotFoundDependsError);
+		initUnFinishParents();
+		initNodeDefaultValues();
+	}
+
+	private void initNodeDefaultValues() {
+		for(FlowTask t : super.getNodes()) {
+			if(getDefaultTimeout() > 0) {
+				if(t.getTimeout() == null) {
+					t.setTimeout(getDefaultTimeout());
+				}
+			}
+			
+			if(getDefaultRetryInterval() > 0) {
+				if(t.getRetryInterval() == null) {
+					t.setRetryInterval(getDefaultRetryInterval());
+				}
+			}
+			
+			if(getDefaultRetryTimes() > 0) {
+				if(t.getRetryTimes() == null) {
+					t.setRetryTimes(getDefaultRetryTimes());
+				}
+			}
+			
+			if(StringUtils.isNotBlank(getDefaultScriptType())) {
+				if(t.getScriptType() == null) {
+					t.setScriptType(getDefaultScriptType());
+				}
+			}
+		}
+	}
+
+	private void initUnFinishParents() {
 		for(FlowTask flowTask : super.getNodes()) {
 			if(CollectionUtils.isNotEmpty(flowTask.getParents())) {
 				Set<FlowTask> unFinishParents = new HashSet<FlowTask>(flowTask.getParents());

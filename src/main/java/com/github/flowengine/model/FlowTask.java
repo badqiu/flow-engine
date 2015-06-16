@@ -26,6 +26,7 @@ import com.github.flowengine.engine.TaskExecutor;
 import com.github.flowengine.model.def.FlowTaskDef;
 import com.github.flowengine.util.Listener;
 import com.github.flowengine.util.Listenerable;
+import static com.github.flowengine.util.NumUtil.defaultInt;
 import com.github.rapid.common.util.ScriptEngineUtil;
 /**
  * 流程任务实例
@@ -264,11 +265,9 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		if(execParents && CollectionUtils.isNotEmpty(getUnFinishParents())) {
 			return;
 		}
-		if(!isEnabled()) {
+		if(isEnabled() == null || !isEnabled()) {
 			throw new RuntimeException("task no enabled,taskId:"+getTaskId());
 		}
-		
-		Assert.hasText(getScriptType(),"scriptType must be not empty");
 		
 		TaskExecutor executor = lookupTaskExecutor(context);
 		execStartTime = new Date();
@@ -282,7 +281,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				
 				this.exception = null;
 				
-				if(getPreSleepTime() > 0) {
+				if(defaultInt(getPreSleepTime()) > 0) {
 					Thread.sleep(getPreSleepTime());
 				}
 				
@@ -316,14 +315,14 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 					break;
 				}
 				this.exception = e;
-				if(this.usedRetryTimes >= getRetryTimes()) {
+				if(this.usedRetryTimes >= defaultInt(getRetryTimes())) {
 					break;
 				}
 				this.usedRetryTimes = this.usedRetryTimes + 1;
 				notifyListeners();
 				
 				logger.warn("retry exec "+getTaskId() + ",usedRetryTimes:"+usedRetryTimes+" retryInterval():"+getRetryInterval()+" exception:" + e.getMessage());
-				if(getRetryInterval() > 0) {
+				if(defaultInt(getRetryInterval()) > 0) {
 					Thread.sleep(getRetryInterval());
 				}
 			}finally {
@@ -359,7 +358,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 
 	private boolean isTimeout() {
 		this.execCostTime =  System.currentTimeMillis() - execStartTime.getTime();
-		if(getTimeout() > 0) {
+		if(defaultInt(getTimeout()) > 0) {
 			if(this.execCostTime > getTimeout() ) {
 				return true;
 			}

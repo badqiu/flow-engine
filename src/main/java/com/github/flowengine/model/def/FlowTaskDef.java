@@ -14,19 +14,19 @@ import com.github.flowengine.graph.GraphNode;
  * @author badqiu
  *
  */
-public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements Serializable {
+public class FlowTaskDef <T extends GraphNode<?>> extends GraphNode<T> implements Serializable,Cloneable {
 	private static final long serialVersionUID = 8556055799573541106L;
 	
 	private String flowId;//流程代码
-	private String taskId;//任务代码
+//	private String taskId;//任务代码
 	
 	private String taskModule; //任务所属模块,无用属性
 	private String taskName;//任务名称
 	private String remarks; //任务备注
 	private Boolean enabled = true;//任务是否激活
 	
-	private int retryTimes;//错误重试次数
-	private int retryInterval; //错误重试间隔,单位(毫秒)
+	private Integer retryTimes;//错误重试次数
+	private Integer retryInterval; //错误重试间隔,单位(毫秒)
 	/**
      * 最终失败是否可忽略       db_column: is_ignore_error 
      */ 	
@@ -34,11 +34,11 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	/**
      * 任务执行前睡眠等待时间(毫秒) 
      */ 	
-	private int preSleepTime;	
+	private Integer preSleepTime;	
 	/**
 	 * 任务执行超时时间,单位(毫秒)
 	 */
-	private int timeout;
+	private Integer timeout;
 	/**
 	 * 在那一台agent(机器)执行程序
 	 */
@@ -70,7 +70,7 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
     /**
      * 优先级(数值越高,优先级越高)       db_column: priority 
      */ 	
-	private int priority;
+	private Integer priority;
 	/**
 	 * 附加属性
 	 */
@@ -78,7 +78,7 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	/**
 	 * 最大并行度(控制子任务的并发执行度) db_column: max_parallel
 	 */
-	private int maxParallel;
+	private Integer maxParallel;
 	/**
 	 * cron表达式
 	 */
@@ -111,7 +111,7 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	public FlowTaskDef(String flowId, String taskId) {
 		super(taskId);
 		this.flowId = flowId;
-		this.taskId = taskId;
+		setId(taskId);
 	}
 	
 	public String getFlowId() {
@@ -121,10 +121,9 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 		this.flowId = flowId;
 	}
 	public String getTaskId() {
-		return taskId;
+		return getId();
 	}
 	public void setTaskId(String taskId) {
-		this.taskId = taskId;
 		setId(taskId);
 	}
 	public String getTaskModule() {
@@ -151,16 +150,16 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	public void setEnabled(Boolean enabled) {
 		this.enabled = enabled;
 	}
-	public int getRetryTimes() {
+	public Integer getRetryTimes() {
 		return retryTimes;
 	}
-	public void setRetryTimes(int retryTimes) {
+	public void setRetryTimes(Integer retryTimes) {
 		this.retryTimes = retryTimes;
 	}
-	public int getRetryInterval() {
+	public Integer getRetryInterval() {
 		return retryInterval;
 	}
-	public void setRetryInterval(int retryInterval) {
+	public void setRetryInterval(Integer retryInterval) {
 		this.retryInterval = retryInterval;
 	}
 	public boolean isIgnoreError() {
@@ -169,16 +168,16 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	public void setIgnoreError(boolean ignoreError) {
 		this.ignoreError = ignoreError;
 	}
-	public int getPreSleepTime() {
+	public Integer getPreSleepTime() {
 		return preSleepTime;
 	}
-	public void setPreSleepTime(int sleepTime) {
+	public void setPreSleepTime(Integer sleepTime) {
 		this.preSleepTime = sleepTime;
 	}
-	public int getTimeout() {
+	public Integer getTimeout() {
 		return timeout;
 	}
-	public void setTimeout(int timeout) {
+	public void setTimeout(Integer timeout) {
 		this.timeout = timeout;
 	}
 	public String getExecAgent() {
@@ -214,10 +213,10 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 	public void setOfflineTime(java.util.Date offlineTime) {
 		this.offlineTime = offlineTime;
 	}
-	public int getPriority() {
+	public Integer getPriority() {
 		return priority;
 	}
-	public void setPriority(int priority) {
+	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
 	public Map getProps() {
@@ -252,11 +251,11 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 		this.errorGroovy = exceptionGroovy;
 	}
 	
-	public int getMaxParallel() {
+	public Integer getMaxParallel() {
 		return maxParallel;
 	}
 
-	public void setMaxParallel(int maxParallel) {
+	public void setMaxParallel(Integer maxParallel) {
 		this.maxParallel = maxParallel;
 	}
 
@@ -298,6 +297,14 @@ public class FlowTaskDef <T extends GraphNode> extends GraphNode<T> implements S
 
 	public void setModifiedTime(Date modifiedTime) {
 		this.modifiedTime = modifiedTime;
+	}
+	
+	public T clone() {
+		try {
+			return (T)super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException("clone error",e);
+		}
 	}
 
 	@Override

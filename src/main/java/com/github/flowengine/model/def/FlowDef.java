@@ -14,7 +14,7 @@ import com.github.flowengine.graph.GraphNode;
  * @author badqiu
  *
  */
-public class FlowDef <T extends GraphNode> extends Graph<T> implements Serializable{
+public class FlowDef <T extends GraphNode> extends Graph<T> implements Serializable,Cloneable{
 	private static final long serialVersionUID = 1L;
 	
 	private String flowId; //流程代码
@@ -53,11 +53,11 @@ public class FlowDef <T extends GraphNode> extends Graph<T> implements Serializa
 	 */
 	private Date modifiedTime;
 	
-	private int retryTimes;// 默认错误重试次数
-	private int retryInterval; // 默认错误重试间隔,单位(毫秒)
-	private int timeout; // 默认超时时间(毫秒)
-	private String scriptType; // 默认程序脚本类型
-	private Date offlineTime; // 默认程序下线时间
+	private int defaultRetryTimes;// 默认错误重试次数
+	private int defaultRetryInterval; // 默认错误重试间隔,单位(毫秒)
+	private int defaultTimeout; // 默认超时时间(毫秒)
+	private String defaultScriptType; // 默认程序脚本类型
+//	private Date offlineTime; // 默认程序下线时间
 	
 	public FlowDef() {
 	}
@@ -97,5 +97,45 @@ public class FlowDef <T extends GraphNode> extends Graph<T> implements Serializa
 	}
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+	
+	public int getDefaultRetryTimes() {
+		return defaultRetryTimes;
+	}
+
+	public void setDefaultRetryTimes(int defaultRetryTimes) {
+		this.defaultRetryTimes = defaultRetryTimes;
+	}
+
+	public int getDefaultRetryInterval() {
+		return defaultRetryInterval;
+	}
+
+	public void setDefaultRetryInterval(int defaultRetryInterval) {
+		this.defaultRetryInterval = defaultRetryInterval;
+	}
+
+	public int getDefaultTimeout() {
+		return defaultTimeout;
+	}
+
+	public void setDefaultTimeout(int defaultTimeout) {
+		this.defaultTimeout = defaultTimeout;
+	}
+
+	public String getDefaultScriptType() {
+		return defaultScriptType;
+	}
+
+	public void setDefaultScriptType(String defaultScriptType) {
+		this.defaultScriptType = defaultScriptType;
+	}
+
+	public T clone() {
+		try {
+			return (T)super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException("clone error",e);
+		}
 	}
 }
