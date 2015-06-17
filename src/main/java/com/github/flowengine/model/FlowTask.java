@@ -411,7 +411,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	 * @return
 	 */
 	public int computePriority() {
-		return getPriority();
+		return defaultInt(getPriority());
 	}
 	
 	@Override
