@@ -18,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 import com.github.flowengine.engine.AsyncTaskExecutor;
@@ -26,14 +27,16 @@ import com.github.flowengine.engine.TaskExecutor;
 import com.github.flowengine.model.def.FlowTaskDef;
 import com.github.flowengine.util.Listener;
 import com.github.flowengine.util.Listenerable;
+
 import static com.github.flowengine.util.NumUtil.defaultInt;
+
 import com.github.rapid.common.util.ScriptEngineUtil;
 /**
  * 流程任务实例
  * @author badqiu
  *
  */
-public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTask>{
+public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTask>,InitializingBean{
 
 	private static Logger logger = LoggerFactory.getLogger(FlowTask.class);
 	
@@ -451,6 +454,13 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			} catch (InterruptedException e) {
 				throw new RuntimeException("interrupt",e);
 			}
+		}
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if(isEnabled() == null) {
+			setEnabled(true);
 		}
 	}
 	

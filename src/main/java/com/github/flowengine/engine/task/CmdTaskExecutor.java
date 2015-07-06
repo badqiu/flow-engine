@@ -36,6 +36,7 @@ public class CmdTaskExecutor implements TaskExecutor{
 
 	public static TaskExecResult execCmdForTaskExecResult(String cmd) throws IOException, InterruptedException {
 		logger.info("exec cmd:"+cmd);
+		long start = System.currentTimeMillis();
 		Process process = Runtime.getRuntime().exec(cmd);
 		
 		InputStream processInputStream = null;
@@ -56,7 +57,8 @@ public class CmdTaskExecutor implements TaskExecutor{
 		
 		IOUtils.closeQuietly(processInputStream);
 		IOUtils.closeQuietly(processErrorStream);
-		logger.info("exec exitValue:" + exitValue + "  with cmd:"+cmd);
+		long cost = System.currentTimeMillis() - start;
+		logger.info("exec exitValue:" + exitValue + "  with cmd:"+cmd+" costSeconds:" + (cost / 1000));
 		return new TaskExecResult(exitValue,out.toString(),errOut.toString());
 	}
 
