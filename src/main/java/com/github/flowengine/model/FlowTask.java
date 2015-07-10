@@ -276,7 +276,6 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		execStartTime = new Date();
 		evalGroovy(context,getBeforeGroovy());
 		
-
 		while(true) {
 			try {
 				status = STATUS_RUNNING;
@@ -321,7 +320,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				if(this.usedRetryTimes >= defaultInt(getRetryTimes())) {
 					break;
 				}
-				this.usedRetryTimes = this.usedRetryTimes + 1;
+				this.usedRetryTimes++;
 				notifyListeners();
 				
 				logger.warn("retry exec "+getTaskId() + ",usedRetryTimes:"+usedRetryTimes+" retryInterval():"+getRetryInterval()+" exception:" + e.getMessage());
@@ -334,6 +333,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				}
 			}
 		}
+		this.status = STATUS_END;
 		
 		if(this.execResult != 0) {
 			evalGroovy(context,getErrorGroovy());
@@ -343,7 +343,6 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			addTaskLog( IOUtils.toString(((AsyncTaskExecutor)executor).getLog(this, context.getParams())) );
 		}
 		
-		this.status = STATUS_END;
 		notifyListeners();
 		
 		//执行成功,或者执行不成功但失败可忽略,在其孩子的未完成父亲集合中去掉当前任务
@@ -352,8 +351,8 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				flowTask.getUnFinishParents().remove(this);
 			}
 		}
-		//否则整个流程标记为失败，并且其孩子节点将不会执行
 		else {
+			//否则整个流程标记为失败，并且其孩子节点将不会执行
 			context.getFlow().setExecResult(1);
 		}
 		
