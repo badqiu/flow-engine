@@ -333,29 +333,35 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				}
 			}
 		}
-		this.status = STATUS_END;
-		
-		if(this.execResult != 0) {
-			evalGroovy(context,getErrorGroovy());
-		}
-		
-		if(executor instanceof AsyncTaskExecutor) {
-			addTaskLog( IOUtils.toString(((AsyncTaskExecutor)executor).getLog(this, context.getParams())) );
-		}
-		
-		notifyListeners();
-		
-		//执行成功,或者执行不成功但失败可忽略,在其孩子的未完成父亲集合中去掉当前任务
-		if(this.execResult == 0 || (this.execResult != 0 && this.isIgnoreError())) {
-			for(FlowTask flowTask : this.getChilds()) {
-				flowTask.getUnFinishParents().remove(this);
+		afterExecuteEnd(context, executor);
+	}
+
+	private void afterExecuteEnd(final FlowContext context,
+			TaskExecutor executor) throws IOException {
+		try {
+			this.status = STATUS_END;
+			
+			if(this.execResult != 0) {
+				evalGroovy(context,getErrorGroovy());
 			}
+			
+			if(executor instanceof AsyncTaskExecutor) {
+				addTaskLog( IOUtils.toString(((AsyncTaskExecutor)executor).getLog(this, context.getParams())) );
+			}
+			
+			//执行成功,或者执行不成功但失败可忽略,在其孩子的未完成父亲集合中去掉当前任务
+			if(this.execResult == 0 || (this.execResult != 0 && this.isIgnoreError())) {
+				for(FlowTask flowTask : this.getChilds()) {
+					flowTask.getUnFinishParents().remove(this);
+				}
+			}
+			else {
+				//否则整个流程标记为失败，并且其孩子节点将不会执行
+				context.getFlow().setExecResult(1);
+			}
+		}finally {
+			notifyListeners();
 		}
-		else {
-			//否则整个流程标记为失败，并且其孩子节点将不会执行
-			context.getFlow().setExecResult(1);
-		}
-		
 	}
 
 	private boolean isTimeout() {
