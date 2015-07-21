@@ -31,6 +31,11 @@ public class FlowTaskDef <T extends GraphNode<?>> extends GraphNode<T> implement
      * 最终失败是否可忽略       db_column: is_ignore_error 
      */ 	
 	private boolean ignoreError;
+	
+//	private boolean failNever; // 忽略失败
+//	private boolean failFast; //快速失败
+//	private boolean failAtEnd; // Only fail the build afterwards; allow all non-impacted builds to continue
+	
 	/**
      * 任务执行前睡眠等待时间(毫秒) 
      */ 	

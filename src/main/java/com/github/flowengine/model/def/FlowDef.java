@@ -59,6 +59,10 @@ public class FlowDef <T extends GraphNode> extends Graph<T> implements Serializa
 	private String defaultScriptType; // 默认程序脚本类型
 //	private Date offlineTime; // 默认程序下线时间
 	
+//	private boolean failNever; // 忽略失败
+//	private boolean failFast; //快速失败
+//	private boolean failAtEnd; // Only fail the build afterwards; allow all non-impacted builds to continue
+	
 	public FlowDef() {
 	}
 	
