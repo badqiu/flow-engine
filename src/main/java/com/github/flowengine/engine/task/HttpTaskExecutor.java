@@ -14,6 +14,7 @@ import com.github.flowengine.engine.TaskExecResult;
 import com.github.flowengine.engine.TaskExecutor;
 import com.github.flowengine.model.FlowContext;
 import com.github.flowengine.model.FlowTask;
+import com.github.rapid.common.util.PropertiesHelper;
 
 public class HttpTaskExecutor implements TaskExecutor {
 
@@ -25,7 +26,9 @@ public class HttpTaskExecutor implements TaskExecutor {
 		String url = StringUtils.trim(task.getScript());
 		URL urlObject = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection)urlObject.openConnection();
-		
+//		task.getProps().get("timeout");
+//		conn.setConnectTimeout(timeout);
+//		conn.setReadTimeout(timeout);
 		try {
 			conn.connect();
 			String response = getResponseBody(conn);

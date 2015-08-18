@@ -1,0 +1,4 @@
+
+Flow支持全局的 before,after( or beforeFlow,afterFlow,beforeTask,afterTask)任务,用于初始化及结速运行的时候操作
+Task支持顺序任务执行，即将多个task组合成一个task,即为CompositeTask
+支持task调用另外一个task

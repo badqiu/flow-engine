@@ -33,6 +33,9 @@ import static com.github.flowengine.util.NumUtil.defaultInt;
 import com.github.rapid.common.util.ScriptEngineUtil;
 /**
  * 流程任务实例
+ * 
+ * TODO: 支持组合模式，任务又支持顺序执行任务
+ * 
  * @author badqiu
  *
  */
