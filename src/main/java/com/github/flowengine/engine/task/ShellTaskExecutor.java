@@ -20,7 +20,7 @@ public class ShellTaskExecutor implements TaskExecutor{
 	public TaskExecResult exec(FlowTask task, FlowContext flowContext)
 			throws Exception {
 		String shellScript = task.getScript();
-		File shellFile = new File("/tmp","ShellTaskExecutor_"+DigestUtils.md5(shellScript)+".sh");
+		File shellFile = new File("/tmp","ShellTaskExecutor_"+DigestUtils.md5Hex(shellScript)+".sh");
 		FileUtils.writeStringToFile(shellFile, shellScript);
 		
 		logger.info("exec shell script:"+shellScript);
