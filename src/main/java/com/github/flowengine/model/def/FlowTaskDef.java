@@ -65,7 +65,7 @@ public class FlowTaskDef <T extends GraphNode<?>> extends GraphNode<T> implement
      */ 	
 	private String script;
     /**
-     * 要运行的程序类型(java_class,bat,shell,shell_script,url,hive_sql,jdbc_sql,java_main,groovy)       db_column: program_type 
+     * 要运行的程序类型(cmd,java_class,bat,shell,url,hive_sql,jdbc_sql,java_main,groovy)       db_column: program_type 
      */ 	
 	private java.lang.String scriptType;
     /**
