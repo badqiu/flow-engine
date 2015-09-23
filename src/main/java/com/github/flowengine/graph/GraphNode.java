@@ -36,18 +36,19 @@ public class GraphNode<T extends GraphNode> implements Serializable {
 	 */
 	private List<T> parents = new ArrayList<T>();
 	
+	private int value;
 
 	public GraphNode() {
 	}
 	
-	public GraphNode(String graphNodeId) {
+	public GraphNode(String id) {
 		super();
-		this.id = graphNodeId;
+		this.id = id;
 	}
 	
-	public GraphNode(String graphNodeId, String depends) {
+	public GraphNode(String id, String depends) {
 		super();
-		this.id = graphNodeId;
+		this.id = id;
 		this.depends = depends;
 	}
 
@@ -73,6 +74,14 @@ public class GraphNode<T extends GraphNode> implements Serializable {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+	
+	public int getValue() {
+		return value;
+	}
+
+	public void setValue(int value) {
+		this.value = value;
 	}
 
 	public List<T> getChilds() {
