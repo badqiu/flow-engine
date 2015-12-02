@@ -440,7 +440,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		List<FlowTask> sortedTasks = new ArrayList<FlowTask>(tasks);
 		Collections.sort(sortedTasks);
 		
-		final CountDownLatch dependsCountDownLatch = new CountDownLatch(tasks.size());
+		final CountDownLatch dependsCountDownLatch = new CountDownLatch(sortedTasks.size());
 		for(final FlowTask depend : sortedTasks) {
 			context.getExecutorService().execute(new Runnable() {
 				@Override
