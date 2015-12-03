@@ -14,12 +14,33 @@ import org.springframework.util.Assert;
 
 public class GraphTest {
 
+	@Test(expected=IllegalStateException.class)
+	public void checkCircuit() {
+		Graph<GraphNode> graph = new Graph<GraphNode>();
+		graph.addNode(new GraphNode("start","step2-1-1"));
+		graph.addNode(newGraphNode("step1","start",10));
+		graph.addNode(newGraphNode("step1-1","step1",20));
+		graph.addNode(newGraphNode("step1-1-1","step1-1",30));
+		graph.addNode(newGraphNode("step2","start",100));
+		graph.addNode(newGraphNode("step2-1","step2",10));
+		graph.addNode(newGraphNode("step2-1-1","start",10));
+		graph.init(true);
+	}
+	
+	@Test(expected=IllegalStateException.class)
+	public void checkCircuit_simple() {
+		Graph<GraphNode> graph = new Graph<GraphNode>();
+		graph.addNode(new GraphNode("start","end"));
+		graph.addNode(newGraphNode("end","start",10));
+		graph.init(true);
+	}
+	
 	@Test
 	public void testPrintValue() {
 		Graph<GraphNode> graph = new Graph<GraphNode>();
 		graph.addNode(new GraphNode("start",""));
 		graph.addNode(newGraphNode("step1","start",10));
-		graph.addNode(newGraphNode("step1-1","step1-1",20));
+		graph.addNode(newGraphNode("step1-1","step1",20));
 		graph.addNode(newGraphNode("step1-1-1","step1-1",30));
 		graph.addNode(newGraphNode("step2","start",100));
 		graph.addNode(newGraphNode("step2-1","step2",10));

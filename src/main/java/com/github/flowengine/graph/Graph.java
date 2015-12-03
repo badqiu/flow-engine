@@ -38,6 +38,7 @@ public class Graph <NODE extends GraphNode> implements Serializable {
 			node.setGraph(this);
 		}
 		initAllNodeDepends(ignoreNotFoundDependError);
+		checkCircuit();
 	}
 	
 	private void initAllNodeDepends(boolean ignoreNotFoundDependError) {
@@ -153,4 +154,20 @@ public class Graph <NODE extends GraphNode> implements Serializable {
 		}
 		return sb.toString();
 	}
+	
+	public void checkCircuit() {
+		for(NODE node : nodes) {
+			checkCircuit(node,node);
+		}
+	}
+
+	private void checkCircuit(GraphNode<NODE> checkNode,GraphNode<NODE> node) {
+		for(NODE parent : node.getParents()) {
+			if(parent == checkNode) {
+				throw new IllegalStateException("found Circuit cycle on node:"+node.getId()+" and node:"+parent.getId());
+			}
+			checkCircuit(checkNode,parent);
+		}
+	}
+	
 }
