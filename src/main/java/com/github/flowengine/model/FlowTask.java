@@ -252,7 +252,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		} 
 		
 		if(execChilds) {
-			execAll(context,execParents, execChilds,getChilds(),true);
+			execAll(context,execParents, execChilds,getChilds(),false);
 		}
 		
 		afterExec(context);
