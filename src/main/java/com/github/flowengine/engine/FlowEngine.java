@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.util.Assert;
 
 import com.github.flowengine.engine.task.CmdTaskExecutor;
@@ -83,7 +84,9 @@ public class FlowEngine {
 	private FlowContext newFlowContext(Map params, Flow flow) {
 		FlowContext context = new FlowContext();
 		context.setParams(params);
-		ExecutorService es = Executors.newFixedThreadPool(flow.getMaxParallel());
+		Integer maxParallel = flow.getMaxParallel();
+		Assert.isTrue(maxParallel > 0,"maxParallel > 0 must be true");
+		ExecutorService es = Executors.newFixedThreadPool(maxParallel,new CustomizableThreadFactory("flow-"+flow.getFlowId()+"-"));
 		context.setExecutorService(es);
 		context.setFlow(flow);
 		context.setFlowEngine(this);

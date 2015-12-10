@@ -278,65 +278,67 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		TaskExecutor executor = lookupTaskExecutor(context);
 		execStartTime = new Date();
 		evalGroovy(context,getBeforeGroovy());
-		
-		while(true) {
-			try {
-				status = STATUS_RUNNING;
-				logger.info("start execute task,id:"+getTaskId()+" usedRetryTimes:"+this.usedRetryTimes+" TaskExecutor:"+executor+" exception:"+exception);
-				
-				this.exception = null;
-				
-				if(defaultInt(getPreSleepTime()) > 0) {
-					Thread.sleep(getPreSleepTime());
-				}
-				
-				notifyListeners();
-				TaskExecResult taskExecResult = executor.exec(this, context);
-				
-				waitIfRunning(executor, context, this);
-				
-				if(taskExecResult != null) {
-					addTaskLog(taskExecResult.getLog());
-					this.execResult = taskExecResult.getExitValue();
-				}else if(executor instanceof AsyncTaskExecutor) {
-					this.execResult = ((AsyncTaskExecutor)executor).getExitCode(this, context.getParams());
-				}else {
-					this.execResult = 0;
-				}
-				
-				if(execResult != 0) {
-					throw new RuntimeException("execResult not zero,execResult:"+this.execResult);
-				}
-				
-				evalGroovy(context,getAfterGroovy());
-				
-				notifyListeners();
-				break;
-			}catch(Exception e) {
-				this.execResult = this.execResult == 0 ? 1 : this.execResult;
-				
-				logger.warn("exec "+getTaskId()+" error",e);
-				if(isTimeout()) {
+		try {
+			while(true) {
+				try {
+					status = STATUS_RUNNING;
+					logger.info("start execute task,id:"+getTaskId()+" usedRetryTimes:"+this.usedRetryTimes+" TaskExecutor:"+executor+" exception:"+exception);
+					
+					this.exception = null;
+					
+					if(defaultInt(getPreSleepTime()) > 0) {
+						Thread.sleep(getPreSleepTime());
+					}
+					
+					notifyListeners();
+					TaskExecResult taskExecResult = executor.exec(this, context);
+					
+					waitIfRunning(executor, context, this);
+					
+					if(taskExecResult != null) {
+						addTaskLog(taskExecResult.getLog());
+						this.execResult = taskExecResult.getExitValue();
+					}else if(executor instanceof AsyncTaskExecutor) {
+						this.execResult = ((AsyncTaskExecutor)executor).getExitCode(this, context.getParams());
+					}else {
+						this.execResult = 0;
+					}
+					
+					if(execResult != 0) {
+						throw new RuntimeException("execResult not zero,execResult:"+this.execResult);
+					}
+					
+					evalGroovy(context,getAfterGroovy());
+					
+					notifyListeners();
 					break;
-				}
-				this.exception = e;
-				if(this.usedRetryTimes >= defaultInt(getRetryTimes())) {
-					break;
-				}
-				this.usedRetryTimes++;
-				notifyListeners();
-				
-				logger.warn("retry exec "+getTaskId() + ",usedRetryTimes:"+usedRetryTimes+" retryInterval():"+getRetryInterval()+" exception:" + e.getMessage());
-				if(defaultInt(getRetryInterval()) > 0) {
-					Thread.sleep(getRetryInterval());
-				}
-			}finally {
-				if(isTimeout()) {
-					break;
+				}catch(Exception e) {
+					this.execResult = this.execResult == 0 ? 1 : this.execResult;
+					
+					logger.warn("exec "+getTaskId()+" error",e);
+					if(isTimeout()) {
+						break;
+					}
+					this.exception = e;
+					if(this.usedRetryTimes >= defaultInt(getRetryTimes())) {
+						break;
+					}
+					this.usedRetryTimes++;
+					notifyListeners();
+					
+					logger.warn("retry exec "+getTaskId() + ",usedRetryTimes:"+usedRetryTimes+" retryInterval():"+getRetryInterval()+" exception:" + e.getMessage());
+					if(defaultInt(getRetryInterval()) > 0) {
+						Thread.sleep(getRetryInterval());
+					}
+				}finally {
+					if(isTimeout()) {
+						break;
+					}
 				}
 			}
+		}finally {
+			afterExecuteEnd(context, executor);
 		}
-		afterExecuteEnd(context, executor);
 	}
 
 	private void afterExecuteEnd(final FlowContext context,
@@ -443,7 +445,6 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		final CountDownLatch dependsCountDownLatch = new CountDownLatch(sortedTasks.size());
 		for(final FlowTask depend : sortedTasks) {
 			context.getExecutorService().execute(new Runnable() {
-				@Override
 				public void run() {
 					try {
 						depend.exec(context,execParents,execChilds);
