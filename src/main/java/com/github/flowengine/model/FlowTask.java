@@ -246,7 +246,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		
 		
 		try {
-			execSelf(execParents,context);
+			execSelf(context);
 		} catch (Exception e) {
 			throw new RuntimeException("error on exec,flowTask:"+this,e);
 		} 
@@ -264,11 +264,11 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	protected void beforeExec(FlowContext context2) {
 	}
 
-	private synchronized void execSelf(boolean execParents, final FlowContext context) throws InstantiationException,
+	private synchronized void execSelf(final FlowContext context) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException,
 			InterruptedException, IOException {
 		//判断所有父亲是否已完全执行
-		if(execParents && CollectionUtils.isNotEmpty(getUnFinishParents())) {
+		if(CollectionUtils.isNotEmpty(getUnFinishParents())) {
 			return;
 		}
 		if(isEnabled() == null || !isEnabled()) {
