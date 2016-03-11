@@ -48,7 +48,7 @@ public class Graph <NODE extends GraphNode> implements Serializable {
 			}catch(RuntimeException e) {
 				if(ignoreNotFoundDependError) {
 					//ignore
-					logger.warn("not found depends"+node.getDepends()+" for node:"+node.getId(),e);
+					logger.warn("not found depends:["+node.getDepends()+"] for node:"+node.getId(),e);
 				}else {
 					throw e;
 				}
