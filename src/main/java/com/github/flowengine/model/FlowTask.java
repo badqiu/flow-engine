@@ -268,7 +268,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			IllegalAccessException, ClassNotFoundException,
 			InterruptedException, IOException {
 		//判断所有父亲是否已完全执行
-		if(CollectionUtils.isNotEmpty(getUnFinishParents())) {
+		if(execParents && CollectionUtils.isNotEmpty(getUnFinishParents())) {
 			return;
 		}
 		if(isEnabled() == null || !isEnabled()) {
