@@ -15,9 +15,11 @@ import com.github.flowengine.engine.TaskExecutor;
 import com.github.flowengine.model.FlowContext;
 import com.github.flowengine.model.FlowTask;
 import com.github.flowengine.util.AsyncOutputStreamThread;
+import com.github.flowengine.util.LimitOutputStream;
 
 public class CmdTaskExecutor implements TaskExecutor{
 
+	private static final int MAX_OUTPUT_LENGTH = 1024 * 1024 * 3;
 	private static Logger logger = LoggerFactory.getLogger(CmdTaskExecutor.class);
 	
 	@Override
@@ -35,6 +37,10 @@ public class CmdTaskExecutor implements TaskExecutor{
 	}
 
 	public static TaskExecResult execCmdForTaskExecResult(String cmd) throws IOException, InterruptedException {
+		return execCmdForTaskExecResult(cmd,MAX_OUTPUT_LENGTH);
+	}
+	
+	public static TaskExecResult execCmdForTaskExecResult(String cmd,int maxOutputLength) throws IOException, InterruptedException {
 		logger.info("exec cmd:"+cmd);
 		long start = System.currentTimeMillis();
 		Process process = Runtime.getRuntime().exec(cmd);
@@ -43,14 +49,14 @@ public class CmdTaskExecutor implements TaskExecutor{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		if(process != null && process.getInputStream() != null){ 
 			processInputStream = process.getInputStream();
-			new AsyncOutputStreamThread(processInputStream,new TeeOutputStream(out,System.err)).start();
+			new AsyncOutputStreamThread(processInputStream,new TeeOutputStream(new LimitOutputStream(out,maxOutputLength),System.err)).start();
 		}
 		
 		InputStream processErrorStream = null;
 		ByteArrayOutputStream errOut = new ByteArrayOutputStream();
 		if(process != null && process.getErrorStream() != null) {
 			processErrorStream = process.getErrorStream();
-			new AsyncOutputStreamThread(processErrorStream,new TeeOutputStream(errOut,System.err)).start();
+			new AsyncOutputStreamThread(processErrorStream,new TeeOutputStream(new LimitOutputStream(errOut,maxOutputLength),System.err)).start();
 		}
 		
 		int exitValue = process.waitFor();
@@ -62,4 +68,5 @@ public class CmdTaskExecutor implements TaskExecutor{
 		return new TaskExecResult(exitValue,out.toString(),errOut.toString());
 	}
 
+	
 }
