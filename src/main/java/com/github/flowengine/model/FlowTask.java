@@ -1,5 +1,7 @@
 package com.github.flowengine.model;
 
+import static com.github.flowengine.util.NumUtil.defaultInt;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,7 +17,6 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -27,9 +28,6 @@ import com.github.flowengine.engine.TaskExecutor;
 import com.github.flowengine.model.def.FlowTaskDef;
 import com.github.flowengine.util.Listener;
 import com.github.flowengine.util.Listenerable;
-
-import static com.github.flowengine.util.NumUtil.defaultInt;
-
 import com.github.rapid.common.util.ScriptEngineUtil;
 /**
  * 流程任务实例
@@ -80,6 +78,8 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	 * 未执行完成的父亲节点
 	 */
 	private Set<FlowTask> unFinishParents = new HashSet<FlowTask>();
+	
+	private List<FlowTask> subtasks = new ArrayList<FlowTask>();
 	
 	public FlowTask() {
 	}
@@ -233,6 +233,14 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			unFinishParents.add(unFinisheParent);
 		}
 	}
+	
+	public List<FlowTask> getSubtasks() {
+		return subtasks;
+	}
+
+	public void setSubtasks(List<FlowTask> subtasks) {
+		this.subtasks = subtasks;
+	}
 
 	public void exec(final FlowContext context,final boolean execParents,final boolean execChilds) {
 		executed = true;
@@ -243,7 +251,6 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		if(execParents) {
 			execAll(context,execParents, execChilds,getParents(),true);
 		}
-		
 		
 		try {
 			execSelf(execParents,context);
@@ -275,69 +282,92 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			throw new RuntimeException("task no enabled,taskId:"+getTaskId());
 		}
 		
-		TaskExecutor executor = lookupTaskExecutor(context);
-		execStartTime = new Date();
-		evalGroovy(context,getBeforeGroovy());
+		TaskExecutor executor = null;
 		try {
-			while(true) {
-				try {
-					status = STATUS_RUNNING;
-					logger.info("start execute task,id:"+getTaskId()+" usedRetryTimes:"+this.usedRetryTimes+" TaskExecutor:"+executor+" exception:"+exception);
-					
-					this.exception = null;
-					
-					if(defaultInt(getPreSleepTime()) > 0) {
-						Thread.sleep(getPreSleepTime());
-					}
-					
-					notifyListeners();
-					TaskExecResult taskExecResult = executor.exec(this, context);
-					
-					waitIfRunning(executor, context, this);
-					
-					if(taskExecResult != null) {
-						addTaskLog(taskExecResult.getLog());
-						this.execResult = taskExecResult.getExitValue();
-					}else if(executor instanceof AsyncTaskExecutor) {
-						this.execResult = ((AsyncTaskExecutor)executor).getExitCode(this, context.getParams());
-					}else {
-						this.execResult = 0;
-					}
-					
-					if(execResult != 0) {
-						throw new RuntimeException("execResult not zero,execResult:"+this.execResult);
-					}
-					
-					evalGroovy(context,getAfterGroovy());
-					
-					notifyListeners();
-					break;
-				}catch(Exception e) {
-					this.execResult = this.execResult == 0 ? 1 : this.execResult;
-					
-					logger.warn("exec "+getTaskId()+" error",e);
-					if(isTimeout()) {
-						break;
-					}
-					this.exception = e;
-					if(this.usedRetryTimes >= defaultInt(getRetryTimes())) {
-						break;
-					}
-					this.usedRetryTimes++;
-					notifyListeners();
-					
-					logger.warn("retry exec "+getTaskId() + ",usedRetryTimes:"+usedRetryTimes+" retryInterval():"+getRetryInterval()+" exception:" + e.getMessage());
-					if(defaultInt(getRetryInterval()) > 0) {
-						Thread.sleep(getRetryInterval());
-					}
-				}finally {
-					if(isTimeout()) {
-						break;
-					}
-				}
+			if(CollectionUtils.isEmpty(subtasks)) {
+				executor = lookupTaskExecutor(context);
+				execByTaskExecutor(executor,context);
+			} else {
+				execSubtasks(context);
 			}
 		}finally {
 			afterExecuteEnd(context, executor);
+		}
+	}
+
+	private void execByTaskExecutor(TaskExecutor executor,final FlowContext context) throws InstantiationException, IllegalAccessException,ClassNotFoundException, InterruptedException {
+		
+		if(executor == null) return;
+		
+		execStartTime = new Date();
+		evalGroovy(context,getBeforeGroovy());
+		
+		while(true) {
+			try {
+				status = STATUS_RUNNING;
+				logger.info("start execute task,id:"+getTaskId()+" usedRetryTimes:"+this.usedRetryTimes+" TaskExecutor:"+executor+" exception:"+exception);
+				
+				this.exception = null;
+				
+				if(defaultInt(getPreSleepTime()) > 0) {
+					Thread.sleep(getPreSleepTime());
+				}
+				
+				notifyListeners();
+				TaskExecResult taskExecResult = executor.exec(this, context);
+				
+				waitIfRunning(executor, context, this);
+				
+				if(taskExecResult != null) {
+					addTaskLog(taskExecResult.getLog());
+					this.execResult = taskExecResult.getExitValue();
+				}else if(executor instanceof AsyncTaskExecutor) {
+					this.execResult = ((AsyncTaskExecutor)executor).getExitCode(this, context.getParams());
+				}else {
+					this.execResult = 0;
+				}
+				
+				if(execResult != 0) {
+					throw new RuntimeException("execResult not zero,execResult:"+this.execResult);
+				}
+				
+				evalGroovy(context,getAfterGroovy());
+				
+				notifyListeners();
+				break;
+			}catch(Exception e) {
+				this.execResult = this.execResult == 0 ? 1 : this.execResult;
+				
+				logger.warn("exec "+getTaskId()+" error",e);
+				if(isTimeout()) {
+					break;
+				}
+				this.exception = e;
+				if(this.usedRetryTimes >= defaultInt(getRetryTimes())) {
+					break;
+				}
+				this.usedRetryTimes++;
+				notifyListeners();
+				
+				logger.warn("retry exec "+getTaskId() + ",usedRetryTimes:"+usedRetryTimes+" retryInterval():"+getRetryInterval()+" exception:" + e.getMessage());
+				if(defaultInt(getRetryInterval()) > 0) {
+					Thread.sleep(getRetryInterval());
+				}
+			}finally {
+				if(isTimeout()) {
+					break;
+				}
+			}
+		}
+	}
+
+	private void execSubtasks(final FlowContext context) {
+		if(subtasks != null) {
+			for(FlowTask subtask : subtasks) {
+				if(subtask != null) {
+					subtask.exec(context, false, false);
+				}
+			}
 		}
 	}
 
@@ -385,7 +415,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			Assert.hasText(getScriptType(),"scriptType must be not empty");
 			TaskExecutor taskExecutor = context.getFlowEngine().getTaskExecutor(getScriptType());
 			if(taskExecutor == null) {
-				return (TaskExecutor)Class.forName(getScriptType()).newInstance();
+				taskExecutor = (TaskExecutor)Class.forName(getScriptType()).newInstance();
 			}
 			setTaskExecutor(taskExecutor);
 		}
