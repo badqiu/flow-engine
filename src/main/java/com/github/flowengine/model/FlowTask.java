@@ -281,7 +281,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	protected void beforeExec(FlowContext context2) {
 	}
 
-	private synchronized void execSelf(boolean execParents, final FlowContext context) throws Exception {
+	synchronized void execSelf(boolean execParents, final FlowContext context) throws Exception {
 		//判断所有父亲是否已完全执行
 		if(execParents && CollectionUtils.isNotEmpty(getUnFinishParents())) {
 			return;
