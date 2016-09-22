@@ -81,6 +81,8 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	
 	private List<FlowTask> subtasks = new ArrayList<FlowTask>();
 	
+	private boolean ignoreSubtaskError = false;
+	
 	public FlowTask() {
 	}
 	
@@ -241,6 +243,14 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	public void setSubtasks(List<FlowTask> subtasks) {
 		this.subtasks = subtasks;
 	}
+	
+	public boolean isIgnoreSubtaskError() {
+		return ignoreSubtaskError;
+	}
+
+	public void setIgnoreSubtaskError(boolean ignoreSubtaskError) {
+		this.ignoreSubtaskError = ignoreSubtaskError;
+	}
 
 	public void exec(final FlowContext context,final boolean execParents,final boolean execChilds) {
 		executed = true;
@@ -271,9 +281,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	protected void beforeExec(FlowContext context2) {
 	}
 
-	private synchronized void execSelf(boolean execParents, final FlowContext context) throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException,
-			InterruptedException, IOException {
+	private synchronized void execSelf(boolean execParents, final FlowContext context) throws Exception {
 		//判断所有父亲是否已完全执行
 		if(execParents && CollectionUtils.isNotEmpty(getUnFinishParents())) {
 			return;
@@ -361,11 +369,20 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		}
 	}
 
-	private void execSubtasks(final FlowContext context) {
+	private void execSubtasks(final FlowContext context) throws Exception {
 		if(subtasks != null) {
 			for(FlowTask subtask : subtasks) {
 				if(subtask != null) {
-					subtask.exec(context, false, false);
+					try {
+						subtask.exec(context, false, false);
+					}catch(Exception e) {
+						if(ignoreSubtaskError) {
+							logger.warn("ignore subtask error,subtask.id:"+subtask.getId(),e);
+							continue;
+						}else {
+							throw new RuntimeException("subtask error,subtask.id:"+subtask.getId(),e);
+						}
+					}
 				}
 			}
 		}
