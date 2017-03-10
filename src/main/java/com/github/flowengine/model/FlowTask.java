@@ -259,7 +259,9 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	}
 
 	public void exec(final FlowContext context,final boolean execParents,final boolean execChilds) {
+		if(executed) return;
 		executed = true;
+		
 		logger.info("start exec task,id:" + getId() + " execParents:"+execParents+" execChilds:"+execChilds);
 		
 		beforeExec(context);
@@ -312,7 +314,6 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	private void execByTaskExecutor(TaskExecutor executor,final FlowContext context) throws InstantiationException, IllegalAccessException,ClassNotFoundException, InterruptedException {
 		
 		if(executor == null) return;
-		if(execStartTime != null) return;
 		
 		status = STATUS_RUNNING;
 		execStartTime = new Date();
