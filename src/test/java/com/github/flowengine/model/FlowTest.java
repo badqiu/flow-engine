@@ -1,9 +1,15 @@
 package com.github.flowengine.model;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,6 +64,42 @@ public class FlowTest {
 		FlowContext context = engien.exec(f,params);
 		//等待流程执行完成
 		context.awaitTermination(1000, TimeUnit.HOURS);
+	}
+	
+	@Test
+	public void testMultiParents() throws InterruptedException {
+		f = new Flow();
+		f.setMaxParallel(20);
+		List<String> parents = new ArrayList();
+		for(int i = 0; i < 10; i++) {
+			String taskId = "parent-"+i;
+			FlowTask parentTask = new FlowTask(taskId);
+			parentTask.setScriptType(NothingTaskExecutor.class);
+			f.addNode(parentTask);
+			parents.add(taskId);
+		}
+		
+		FlowTask t = new FlowTask("demo_task");
+		t.setDepends(StringUtils.join(parents,","));
+		t.setScriptType("groovy");
+		t.setScript("exec_count.incrementAndGet();System.out.println('child exec before');Thread.sleep(1000);System.out.println('child exec after');");
+		f.addNode(t);
+		f.init();
+		
+		System.out.println("dump start ----------------------");
+		System.out.println(f.toString());
+		System.out.println("dump end ----------------------");
+		
+		
+		Map params = new HashMap();
+		AtomicInteger execCount = new AtomicInteger(0);
+		params.put("exec_count", execCount);
+		FlowEngine engien = new FlowEngine();
+		FlowContext context = engien.exec(f,params);
+		context.awaitTermination(100, TimeUnit.HOURS);
+		
+		assertEquals("only exec once",execCount.get(),1);
+		
 	}
 	
 	@After

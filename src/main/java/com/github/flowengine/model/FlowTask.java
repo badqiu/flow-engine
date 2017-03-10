@@ -60,6 +60,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
      * 任务执行的开发时间       
      */ 	
 	private java.util.Date execStartTime;
+	private java.util.Date execEndTime;
 	/**
      * 任务执行日志       db_column: task_log 
      */ 	
@@ -306,6 +307,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	private void execByTaskExecutor(TaskExecutor executor,final FlowContext context) throws InstantiationException, IllegalAccessException,ClassNotFoundException, InterruptedException {
 		
 		if(executor == null) return;
+		if(execStartTime != null) return;
 		
 		execStartTime = new Date();
 		evalGroovy(context,getBeforeGroovy());
@@ -418,6 +420,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 
 	private boolean isTimeout() {
 		this.execCostTime =  System.currentTimeMillis() - execStartTime.getTime();
+		this.execEndTime = new Date();
 		if(defaultInt(getTimeout()) > 0) {
 			if(this.execCostTime > getTimeout() ) {
 				return true;
