@@ -60,7 +60,6 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
      * 任务执行的开发时间       
      */ 	
 	private java.util.Date execStartTime;
-	private java.util.Date execEndTime;
 	/**
      * 任务执行日志       db_column: task_log 
      */ 	
@@ -156,8 +155,14 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		return execStartTime;
 	}
 
-	public void setExecStartTime(java.util.Date execStartTime) {
+	public void setExecStartTime(Date execStartTime) {
 		this.execStartTime = execStartTime;
+	}
+	
+	public Date getExecEndTime() {
+		if(execStartTime == null) return null;
+		
+		return new Date(execStartTime.getTime() + this.execCostTime);
 	}
 
 	public String getTaskLog() {
@@ -309,12 +314,12 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		if(executor == null) return;
 		if(execStartTime != null) return;
 		
+		status = STATUS_RUNNING;
 		execStartTime = new Date();
-		evalGroovy(context,getBeforeGroovy());
 		
+		evalGroovy(context,getBeforeGroovy());
 		while(true) {
 			try {
-				status = STATUS_RUNNING;
 				logger.info("start execute task,id:"+getTaskId()+" usedRetryTimes:"+this.usedRetryTimes+" TaskExecutor:"+executor+" exception:"+exception);
 				
 				this.exception = null;
@@ -420,7 +425,6 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 
 	private boolean isTimeout() {
 		this.execCostTime =  System.currentTimeMillis() - execStartTime.getTime();
-		this.execEndTime = new Date();
 		if(defaultInt(getTimeout()) > 0) {
 			if(this.execCostTime > getTimeout() ) {
 				return true;
