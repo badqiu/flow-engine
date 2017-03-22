@@ -44,9 +44,10 @@ public class Flow extends FlowDef<FlowTask>{
 	/**
 	 * 初始化图
 	 */
+	@Override
 	public void init(boolean ignoreNotFoundDependsError) {
 		super.init(ignoreNotFoundDependsError);
-		initUnFinishParents();
+//		initUnFinishParents();
 		initNodeDefaultValues();
 	}
 
@@ -78,14 +79,14 @@ public class Flow extends FlowDef<FlowTask>{
 		}
 	}
 
-	private void initUnFinishParents() {
-		for(FlowTask flowTask : super.getNodes()) {
-			if(CollectionUtils.isNotEmpty(flowTask.getParents())) {
-				Set<FlowTask> unFinishParents = new HashSet<FlowTask>(flowTask.getParents());
-				flowTask.setUnFinishParents(unFinishParents);
-			}
-		}
-	}
+//	private void initUnFinishParents() {
+//		for(FlowTask flowTask : super.getNodes()) {
+//			if(CollectionUtils.isNotEmpty(flowTask.getParents())) {
+//				Set<FlowTask> unFinishParents = new HashSet<FlowTask>(flowTask.getParents());
+//				flowTask.setUnFinishParents(unFinishParents);
+//			}
+//		}
+//	}
 	
 	public String getInstanceId() {
 		return instanceId;

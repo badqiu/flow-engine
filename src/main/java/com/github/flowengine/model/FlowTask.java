@@ -77,11 +77,13 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	/**
 	 * 未执行完成的父亲节点
 	 */
-	private Set<FlowTask> unFinishParents = new HashSet<FlowTask>();
+//	private Set<FlowTask> unFinishParents = new HashSet<FlowTask>();
 	
 	private List<FlowTask> subtasks = new ArrayList<FlowTask>();
 	
 	private boolean ignoreSubtaskError = false;
+	
+	private boolean executeEnd = false;
 	
 	public FlowTask() {
 	}
@@ -228,19 +230,19 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		this.listenerable = listenerable;
 	}
 	
-	public Set<FlowTask> getUnFinishParents() {
-		return unFinishParents;
-	}
-
-	public void setUnFinishParents(Set<FlowTask> unFinishParents) {
-		this.unFinishParents = unFinishParents;
-	}
-	
-	public void addUnFinisheParent(FlowTask unFinisheParent) {
-		if(!unFinishParents.contains(unFinisheParent)) {
-			unFinishParents.add(unFinisheParent);
-		}
-	}
+//	public Set<FlowTask> getUnFinishParents() {
+//		return unFinishParents;
+//	}
+//
+//	public void setUnFinishParents(Set<FlowTask> unFinishParents) {
+//		this.unFinishParents = unFinishParents;
+//	}
+//	
+//	public void addUnFinisheParent(FlowTask unFinisheParent) {
+//		if(!unFinishParents.contains(unFinisheParent)) {
+//			unFinishParents.add(unFinisheParent);
+//		}
+//	}
 	
 	public List<FlowTask> getSubtasks() {
 		return subtasks;
@@ -259,10 +261,8 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	}
 
 	public void exec(final FlowContext context,final boolean execParents,final boolean execChilds) {
-		if(executed) return;
-		executed = true;
 		
-		logger.info("start exec task,id:" + getId() + " execParents:"+execParents+" execChilds:"+execChilds);
+		logger.info("exec() FlowTask before,id:" + getId() + " execParents:"+execParents+" execChilds:"+execChilds);
 		
 		beforeExec(context);
 		
@@ -274,7 +274,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			execSelf(execParents,context);
 		} catch (Exception e) {
 			throw new RuntimeException("error on exec,flowTask:"+this,e);
-		} 
+		}
 		
 		if(execChilds) {
 			execAll(context,execParents, execChilds,getChilds(),true);
@@ -283,17 +283,33 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		afterExec(context);
 	}
 
-	protected void afterExec(FlowContext context2) {
+	protected void afterExec(FlowContext ctx) {
 	}
 
-	protected void beforeExec(FlowContext context2) {
+	protected void beforeExec(FlowContext ctx) {
+	}
+	
+	private boolean allParentsExecutedEnd() {
+		for(FlowTask ft : getParents()) {
+			if(!ft.executeEnd) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	synchronized void execSelf(boolean execParents, final FlowContext context) throws Exception {
 		//判断所有父亲是否已完全执行
-		if(execParents && CollectionUtils.isNotEmpty(getUnFinishParents())) {
+//		if(CollectionUtils.isNotEmpty(getUnFinishParents())) {
+//			return;
+//		}
+		//判断所有父亲是否已完全执行
+		if(!allParentsExecutedEnd()) {
 			return;
 		}
+		executed = true;
+		if(executeEnd) return;
+		
 		if(isEnabled() == null || !isEnabled()) {
 			throw new RuntimeException("task no enabled,taskId:"+getTaskId());
 		}
@@ -308,6 +324,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			}
 		}finally {
 			afterExecuteEnd(context, executor);
+			executeEnd = true;
 		}
 	}
 
@@ -321,7 +338,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		evalGroovy(context,getBeforeGroovy());
 		while(true) {
 			try {
-				logger.info("start execute task,id:"+getTaskId()+" usedRetryTimes:"+this.usedRetryTimes+" TaskExecutor:"+executor+" exception:"+exception);
+				logger.info(" execByTaskExecutor(), id:"+getTaskId()+" usedRetryTimes:"+this.usedRetryTimes+" TaskExecutor:"+executor+" exception:"+exception);
 				
 				this.exception = null;
 				
@@ -397,7 +414,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	}
 
 	private void afterExecuteEnd(final FlowContext context,
-			TaskExecutor executor) throws IOException {
+			TaskExecutor executor) throws Exception {
 		try {
 			this.status = STATUS_END;
 			
@@ -409,15 +426,20 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				addTaskLog( IOUtils.toString(((AsyncTaskExecutor)executor).getLog(this, context.getParams())) );
 			}
 			
+			
 			//执行成功,或者执行不成功但失败可忽略,在其孩子的未完成父亲集合中去掉当前任务
 			if(this.execResult == 0 || (this.execResult != 0 && this.isIgnoreError())) {
-				for(FlowTask flowTask : this.getChilds()) {
-					flowTask.getUnFinishParents().remove(this);
-				}
+//				for(FlowTask flowTask : this.getChilds()) {
+//					flowTask.getUnFinishParents().remove(this);
+//				}
 			}
 			else {
 				//否则整个流程标记为失败，并且其孩子节点将不会执行
 				context.getFlow().setExecResult(1);
+			}
+			
+			if((this.execResult != 0 && this.isIgnoreError())) {
+				throw (Exception)exception;
 			}
 		}finally {
 			notifyListeners();
