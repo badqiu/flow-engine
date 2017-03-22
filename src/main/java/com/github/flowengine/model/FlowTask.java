@@ -307,8 +307,8 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		if(execParents && !allParentsExecutedEnd()) {
 			return;
 		}
-		executed = true;
 		if(executeEnd) return;
+		executed = true;
 		
 		if(isEnabled() == null || !isEnabled()) {
 			throw new RuntimeException("task no enabled,taskId:"+getTaskId());
