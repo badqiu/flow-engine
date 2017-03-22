@@ -22,6 +22,7 @@ public class FlowTest {
 	private Flow f = new Flow();
 	@Before
 	public void setUp() {
+		SystemOutTaskExecutor.execCount = 0;
 		f.setFlowId("demo_flow");
 		f.setMaxParallel(3);
 		
@@ -55,6 +56,7 @@ public class FlowTest {
 		
 		//等待流程执行完成
 		context.awaitTermination(1000, TimeUnit.HOURS);
+		assertEquals(SystemOutTaskExecutor.execCount,10);
 	}
 	
 	@Test
@@ -64,6 +66,30 @@ public class FlowTest {
 		FlowContext context = engien.exec(f,params);
 		//等待流程执行完成
 		context.awaitTermination(1000, TimeUnit.HOURS);
+		
+		assertEquals(SystemOutTaskExecutor.execCount,10);
+	}
+	
+	@Test
+	public void testOnlyOneTask() throws InterruptedException {
+		Map params = new HashMap();
+		FlowEngine engien = new FlowEngine();
+		FlowContext context = engien.exec(f,"demo_task_1",params);
+		//等待流程执行完成
+		context.awaitTermination(1000, TimeUnit.HOURS);
+		
+		assertEquals(SystemOutTaskExecutor.execCount,1);
+	}
+	
+	@Test
+	public void testByRootTask() throws InterruptedException {
+		Map params = new HashMap();
+		FlowEngine engien = new FlowEngine();
+		FlowContext context = engien.exec(f,"start",params);
+		//等待流程执行完成
+		context.awaitTermination(1000, TimeUnit.HOURS);
+		
+		assertEquals(SystemOutTaskExecutor.execCount,10);
 	}
 	
 	@Test

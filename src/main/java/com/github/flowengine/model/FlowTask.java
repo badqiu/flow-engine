@@ -304,7 +304,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 //			return;
 //		}
 		//判断所有父亲是否已完全执行
-		if(!allParentsExecutedEnd()) {
+		if(execParents && !allParentsExecutedEnd()) {
 			return;
 		}
 		executed = true;
