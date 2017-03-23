@@ -15,4 +15,12 @@ public class HttpTaskExecutorTest {
 		e.exec(task, new FlowContext());
 	}
 
+	@Test
+	public void testHttps() throws Exception {
+		HttpTaskExecutor e = new HttpTaskExecutor();
+		FlowTask task = new FlowTask();
+		task.setScript("https://www.baidu.com");
+		e.exec(task, new FlowContext());
+	}
+	
 }
