@@ -14,12 +14,30 @@ import com.github.flowengine.engine.TaskExecResult;
 import com.github.flowengine.engine.TaskExecutor;
 import com.github.flowengine.model.FlowContext;
 import com.github.flowengine.model.FlowTask;
-import com.github.rapid.common.util.PropertiesHelper;
+import com.github.flowengine.util.https.SslUtils;
 
 public class HttpTaskExecutor implements TaskExecutor {
 
 	private static Logger logger = LoggerFactory.getLogger(HttpTaskExecutor.class);
 	
+	static {
+		try {
+			SslUtils.ignoreSsl();
+		} catch (Exception e) {
+			logger.error("ignoreSsl error",e);
+		}
+	}
+	
+	private int timeout = 1000 * 60;
+	
+	public int getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
+
 	@Override
 	public TaskExecResult exec(FlowTask task, FlowContext flowContext)
 			throws Exception {
@@ -27,8 +45,9 @@ public class HttpTaskExecutor implements TaskExecutor {
 		URL urlObject = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection)urlObject.openConnection();
 //		task.getProps().get("timeout");
-//		conn.setConnectTimeout(timeout);
-//		conn.setReadTimeout(timeout);
+		conn.setConnectTimeout(timeout);
+		conn.setReadTimeout(timeout);
+
 		try {
 			conn.connect();
 			String response = getResponseBody(conn);

@@ -23,4 +23,11 @@ public class HttpTaskExecutorTest {
 		e.exec(task, new FlowContext());
 	}
 	
+	@Test
+	public void testHttps2() throws Exception {
+		HttpTaskExecutor e = new HttpTaskExecutor();
+		FlowTask task = new FlowTask();
+		task.setScript("https://whale.xoyo.com/nav.jsp");
+		e.exec(task, new FlowContext());
+	}
 }
