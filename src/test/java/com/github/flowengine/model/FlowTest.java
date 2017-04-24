@@ -20,9 +20,10 @@ import com.github.flowengine.engine.task.NothingTaskExecutor;
 public class FlowTest {
 
 	private Flow f = new Flow();
+	SystemOutTaskExecutor taskExecutor = new SystemOutTaskExecutor();
 	@Before
 	public void setUp() {
-		SystemOutTaskExecutor.execCount = 0;
+//		SystemOutTaskExecutor.execCount = 0;
 		f.setFlowId("demo_flow");
 		f.setMaxParallel(3);
 		
@@ -33,8 +34,9 @@ public class FlowTest {
 		for(int i = 0; i < 10; i++) {
 			FlowTask t = new FlowTask("demo_task_"+i);
 			t.setDepends("start"); //依赖start任务
-			t.setScriptType(SystemOutTaskExecutor.class);
+//			t.setScriptType(SystemOutTaskExecutor.class);
 			t.setPriority(i);
+			t.setTaskExecutor(taskExecutor);
 			f.addNode(t);
 		}
 		
@@ -56,7 +58,7 @@ public class FlowTest {
 		
 		//等待流程执行完成
 		context.awaitTermination(1000, TimeUnit.HOURS);
-		assertEquals(SystemOutTaskExecutor.execCount,10);
+		assertEquals(taskExecutor.execCount,10);
 	}
 	
 	@Test
@@ -67,7 +69,7 @@ public class FlowTest {
 		//等待流程执行完成
 		context.awaitTermination(1000, TimeUnit.HOURS);
 		
-		assertEquals(SystemOutTaskExecutor.execCount,10);
+		assertEquals(taskExecutor.execCount,10);
 	}
 	
 	@Test
@@ -78,7 +80,7 @@ public class FlowTest {
 		//等待流程执行完成
 		context.awaitTermination(1000, TimeUnit.HOURS);
 		
-		assertEquals(SystemOutTaskExecutor.execCount,1);
+		assertEquals(taskExecutor.execCount,1);
 	}
 	
 	@Test
@@ -89,7 +91,7 @@ public class FlowTest {
 		//等待流程执行完成
 		context.awaitTermination(1000, TimeUnit.HOURS);
 		
-		assertEquals(SystemOutTaskExecutor.execCount,10);
+		assertEquals(taskExecutor.execCount,10);
 	}
 	
 	@Test

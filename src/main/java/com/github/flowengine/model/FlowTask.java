@@ -260,24 +260,31 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		this.ignoreSubtaskError = ignoreSubtaskError;
 	}
 
-	public void exec(final FlowContext context,final boolean execParents,final boolean execChilds) {
-		
-		logger.info("exec() FlowTask before,id:" + getId() + " execParents:"+execParents+" execChilds:"+execChilds);
+	public void exec(final FlowContext context,final boolean execChilds) {
+		exec_internal(context,false,execChilds);
+	}
+
+	private void exec_internal(final FlowContext context,final boolean testParentExec,final boolean execChilds) {
+		logger.info("exec() FlowTask before,id:" + getId() + " execChilds:"+execChilds);
 		
 		beforeExec(context);
 		
-		if(execParents) {
-			execAll(context,execParents, execChilds,getParents(),true);
-		}
+//		if(execParents) {
+//			execAll(context,execParents, execChilds,getParents(),true);
+//		}
 		
 		try {
-			execSelf(execParents,context);
+			if(testParentExec && !allParentsExecutedEnd()) {
+				return;
+			}
+			
+			execSelf(context);
 		} catch (Exception e) {
 			throw new RuntimeException("error on exec,flowTask:"+this,e);
 		}
 		
 		if(execChilds) {
-			execAll(context,execParents, execChilds,getChilds(),true);
+			execAll(context, execChilds,getChilds(),true);
 		}
 		
 		afterExec(context);
@@ -298,15 +305,13 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		return true;
 	}
 
-	synchronized void execSelf(boolean execParents, final FlowContext context) throws Exception {
+	synchronized void execSelf(final FlowContext context) throws Exception {
 		//判断所有父亲是否已完全执行
 //		if(CollectionUtils.isNotEmpty(getUnFinishParents())) {
 //			return;
 //		}
 		//判断所有父亲是否已完全执行
-		if(execParents && !allParentsExecutedEnd()) {
-			return;
-		}
+		
 		if(executeEnd) return;
 		executed = true;
 		
@@ -399,7 +404,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			for(FlowTask subtask : subtasks) {
 				if(subtask != null) {
 					try {
-						subtask.exec(context, false, false);
+						subtask.exec(context,false);
 					}catch(Exception e) {
 						if(ignoreSubtaskError) {
 							logger.warn("ignore subtask error,subtask.id:"+subtask.getId(),e);
@@ -509,7 +514,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		return -new Integer(computePriority()).compareTo(o.computePriority());
 	}
 
-	public static void execAll(final FlowContext context, final boolean execParents,final boolean execChilds, Collection<FlowTask> tasks,boolean waitTasksExecEnd) {
+	public static void execAll(final FlowContext context, final boolean execChilds, Collection<FlowTask> tasks,boolean waitTasksExecEnd) {
 		if(CollectionUtils.isEmpty(tasks)) {
 			return;
 		}
@@ -524,7 +529,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			context.getExecutorService().execute(new Runnable() {
 				public void run() {
 					try {
-						depend.exec(context,execParents,execChilds);
+						depend.exec_internal(context,true,execChilds);
 					}catch(Exception e) {
 						e.printStackTrace();
 					}finally {

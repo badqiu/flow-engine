@@ -5,11 +5,11 @@ import com.github.flowengine.engine.TaskExecutor;
 
 public class SystemOutTaskExecutor implements TaskExecutor {
 
-	public static int execCount = 0;
+	public int execCount = 0;
 	@Override
-	public TaskExecResult exec(FlowTask task, FlowContext flowContext) throws InterruptedException {
+	public synchronized TaskExecResult exec(FlowTask task, FlowContext flowContext) throws InterruptedException {
 		System.out.println(task.getTaskId());
-		Thread.sleep(1000 * 3);
+		Thread.sleep(500);
 		execCount++;
 		return null;
 	}

@@ -47,11 +47,6 @@ public class FlowEngine {
 		return taskExecutorShortNames.get(shortName);
 	}
 	
-	public FlowContext exec(String flowId,String startTaskId,Map params) {
-		Flow flow = getRequiredFlow(flowId);
-		return exec(flow,startTaskId, params);
-	}
-
 	public FlowContext exec(Flow flow,List<FlowTask> tasks, Map params) {
 		Assert.isTrue(flow.getMaxParallel() > 0,"flow.getMaxParallel() > 0 must be true");
 		FlowContext context = newFlowContext(params, flow);
@@ -63,21 +58,29 @@ public class FlowEngine {
 		return exec(flow,flow.getNoDependNodes(),params);
 	}
 	
+	/* exec by startTaskId */
+	public FlowContext exec(String flowId,String startTaskId,Map params) {
+		Flow flow = getRequiredFlow(flowId);
+		return exec(flow,startTaskId, params);
+	}
+	
+	/* exec by startTaskId */
 	public FlowContext exec(Flow flow,String startTaskId, Map params) {
 		Assert.isTrue(flow.getMaxParallel() > 0,"flow.getMaxParallel() > 0 must be true");
 		FlowContext context = newFlowContext(params, flow);
 		return exec(flow, startTaskId, context);
 	}
-
+	
+	/* exec by startTaskId */
 	public FlowContext exec(Flow flow, String startTaskId, FlowContext context) {
 		FlowTask task = flow.getNode(startTaskId);
 		Assert.notNull(task,"not found by taskId:"+startTaskId);
-		task.exec(context,false,true);
+		task.exec(context,true);
 		return context;
 	}
 	
 	public FlowContext exec(Flow flow, List<FlowTask> tasks, FlowContext context) {
-		FlowTask.execAll(context, false, true, tasks, true);
+		FlowTask.execAll(context, true, tasks, true);
 		return context;
 	}
 
