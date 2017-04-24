@@ -290,6 +290,40 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		afterExec(context);
 	}
 
+	public static void execAll(final FlowContext context, final boolean execChilds, Collection<FlowTask> tasks,boolean waitTasksExecEnd) {
+		if(CollectionUtils.isEmpty(tasks)) {
+			return;
+		}
+		
+		Assert.notNull(context.getExecutorService(),"context.getExecutorService() must be not null");
+		
+		List<FlowTask> sortedTasks = new ArrayList<FlowTask>(tasks);
+		Collections.sort(sortedTasks);
+		
+		final CountDownLatch dependsCountDownLatch = new CountDownLatch(sortedTasks.size());
+		for(final FlowTask depend : sortedTasks) {
+			context.getExecutorService().execute(new Runnable() {
+				public void run() {
+					try {
+						depend.exec_internal(context,true,execChilds);
+					}catch(Exception e) {
+						e.printStackTrace();
+					}finally {
+						dependsCountDownLatch.countDown();
+					}
+				}
+			});
+		}
+		
+		if(waitTasksExecEnd) {
+			try {
+				dependsCountDownLatch.await();
+			} catch (InterruptedException e) {
+				throw new RuntimeException("interrupt",e);
+			}
+		}
+	}
+
 	protected void afterExec(FlowContext ctx) {
 	}
 
@@ -512,40 +546,6 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	@Override
 	public int compareTo(FlowTask o) {
 		return -new Integer(computePriority()).compareTo(o.computePriority());
-	}
-
-	public static void execAll(final FlowContext context, final boolean execChilds, Collection<FlowTask> tasks,boolean waitTasksExecEnd) {
-		if(CollectionUtils.isEmpty(tasks)) {
-			return;
-		}
-		
-		Assert.notNull(context.getExecutorService(),"context.getExecutorService() must be not null");
-		
-		List<FlowTask> sortedTasks = new ArrayList<FlowTask>(tasks);
-		Collections.sort(sortedTasks);
-		
-		final CountDownLatch dependsCountDownLatch = new CountDownLatch(sortedTasks.size());
-		for(final FlowTask depend : sortedTasks) {
-			context.getExecutorService().execute(new Runnable() {
-				public void run() {
-					try {
-						depend.exec_internal(context,true,execChilds);
-					}catch(Exception e) {
-						e.printStackTrace();
-					}finally {
-						dependsCountDownLatch.countDown();
-					}
-				}
-			});
-		}
-		
-		if(waitTasksExecEnd) {
-			try {
-				dependsCountDownLatch.await();
-			} catch (InterruptedException e) {
-				throw new RuntimeException("interrupt",e);
-			}
-		}
 	}
 
 	@Override
