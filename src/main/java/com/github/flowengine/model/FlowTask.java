@@ -396,10 +396,10 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				}else if(executor instanceof AsyncTaskExecutor) {
 					this.execResult = ((AsyncTaskExecutor)executor).getExitCode(this, context.getParams());
 				}else {
-					this.execResult = 0;
+					this.execResult = EXEC_SUCCESS;
 				}
 				
-				if(execResult != 0) {
+				if(execResult != EXEC_SUCCESS) {
 					throw new RuntimeException("execResult not zero,execResult:"+this.execResult);
 				}
 				
@@ -449,15 +449,18 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 					}
 				}
 			}
+			
+			this.execResult = EXEC_SUCCESS;
 		}
 	}
 
+	private static int EXEC_SUCCESS = 0;
 	private void afterExecuteEnd(final FlowContext context,
 			TaskExecutor executor) throws Exception {
 		try {
 			this.status = STATUS_END;
 			
-			if(this.execResult != 0) {
+			if(this.execResult != EXEC_SUCCESS) {
 				evalGroovy(context,getErrorGroovy());
 			}
 			
@@ -467,7 +470,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			
 			
 			//执行成功,或者执行不成功但失败可忽略,在其孩子的未完成父亲集合中去掉当前任务
-			if(this.execResult == 0 || (this.execResult != 0 && this.isIgnoreError())) {
+			if(this.execResult == EXEC_SUCCESS || (this.execResult != EXEC_SUCCESS && this.isIgnoreError())) {
 //				for(FlowTask flowTask : this.getChilds()) {
 //					flowTask.getUnFinishParents().remove(this);
 //				}
@@ -477,7 +480,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				context.getFlow().setExecResult(1);
 			}
 			
-			if((this.execResult != 0 && this.isIgnoreError())) {
+			if((this.execResult != EXEC_SUCCESS && this.isIgnoreError())) {
 				throw (Exception)exception;
 			}
 		}finally {
