@@ -27,7 +27,9 @@ public class NamedLockUtil {
 	
 	public static void unlock(String lockGroup,String lockId) {
 		Lock lock = getLock(lockGroup, lockId);
-		lock.unlock();
+		if(lock != null) {
+			lock.unlock();
+		}
 		locks.remove(getLockKey(lockGroup, lockId));
 	}
 	
