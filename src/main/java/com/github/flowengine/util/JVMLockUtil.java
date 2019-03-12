@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.springframework.util.Assert;
 
 
-public class NamedLockUtil {
+public class JVMLockUtil {
 
 	static Map<String,Lock> locks = new ConcurrentHashMap<String,Lock>();
 	

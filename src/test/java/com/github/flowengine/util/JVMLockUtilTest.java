@@ -3,7 +3,7 @@ package com.github.flowengine.util;
 import org.apache.hadoop.util.ThreadUtil;
 import org.junit.Test;
 
-public class NamedLockUtilTest {
+public class JVMLockUtilTest {
 
 	@Test
 	public void test() throws InterruptedException {
@@ -11,16 +11,16 @@ public class NamedLockUtilTest {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				NamedLockUtil.lock("badqiu_lock");
+				JVMLockUtil.lock("badqiu_lock");
 				System.out.println("get lock on thread");
 				ThreadUtil.sleepAtLeastIgnoreInterrupts(1000 * 10);
-				NamedLockUtil.unlock("badqiu_lock");
+				JVMLockUtil.unlock("badqiu_lock");
 			}
 		}).start();;
 		
 		ThreadUtil.sleepAtLeastIgnoreInterrupts(1000);
 		
-		NamedLockUtil.lock("badqiu_lock");
+		JVMLockUtil.lock("badqiu_lock");
 		System.out.println("END");
 	}
 

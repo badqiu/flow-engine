@@ -26,6 +26,7 @@ import com.github.flowengine.engine.AsyncTaskExecutor;
 import com.github.flowengine.engine.TaskExecResult;
 import com.github.flowengine.engine.TaskExecutor;
 import com.github.flowengine.model.def.FlowTaskDef;
+import com.github.flowengine.util.JVMLockUtil;
 import com.github.flowengine.util.Listener;
 import com.github.flowengine.util.Listenerable;
 import com.github.rapid.common.util.ScriptEngineUtil;
@@ -52,6 +53,12 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	private boolean executed = false; // 是否已经执行
 	private boolean forceExec; //是否强制执行
 	private int usedRetryTimes; //已经重试执行次数
+	
+	/**
+	 * 任务锁的ID
+	 */
+	private String lockId;
+	
 	/**
      * 任务执行耗时       
      */ 	
@@ -244,6 +251,14 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 //		}
 //	}
 	
+	public String getLockId() {
+		return lockId;
+	}
+
+	public void setLockId(String lockId) {
+		this.lockId = lockId;
+	}
+
 	public List<FlowTask> getSubtasks() {
 		return subtasks;
 	}
@@ -355,6 +370,10 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		
 		TaskExecutor executor = null;
 		try {
+			if(StringUtils.isNotBlank(lockId)) {
+				JVMLockUtil.lock(lockId);
+			}
+			
 			if(CollectionUtils.isEmpty(subtasks)) {
 				executor = lookupTaskExecutor(context);
 				execByTaskExecutor(executor,context);
@@ -362,6 +381,10 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				execSubtasks(context);
 			}
 		}finally {
+			if(StringUtils.isNotBlank(lockId)) {
+				JVMLockUtil.unlock(lockId);
+			}
+			
 			afterExecuteEnd(context, executor);
 			executeEnd = true;
 		}
