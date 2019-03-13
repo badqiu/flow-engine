@@ -387,21 +387,25 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	}
 
 	private void doUnlock() {
-		if(StringUtils.isNotBlank(lockId)) {
-			for(String id : StringUtils.split(lockId, ",")) {
-				if(StringUtils.isNotBlank(id)) {
-					JVMLockUtil.unlock(StringUtils.trim(id));
-				}
+		if(StringUtils.isBlank(lockId)) {
+			return;
+		}
+		
+		for(String id : StringUtils.split(lockId, ",")) {
+			if(StringUtils.isNotBlank(id)) {
+				JVMLockUtil.unlock(StringUtils.trim(id));
 			}
 		}
 	}
 
 	private void doLock() {
-		if(StringUtils.isNotBlank(lockId)) {
-			for(String id : StringUtils.split(lockId, ",")) {
-				if(StringUtils.isNotBlank(id)) {
-					JVMLockUtil.lock(StringUtils.trim(id));
-				}
+		if(StringUtils.isBlank(lockId)) {
+			return;
+		}
+		
+		for(String id : StringUtils.split(lockId, ",")) {
+			if(StringUtils.isNotBlank(id)) {
+				JVMLockUtil.lock(StringUtils.trim(id));
 			}
 		}
 	}
