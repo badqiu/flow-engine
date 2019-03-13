@@ -55,7 +55,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	private int usedRetryTimes; //已经重试执行次数
 	
 	/**
-	 * 任务锁的ID
+	 * 任务锁的ID,支持以逗号分隔多个锁
 	 */
 	private String lockId;
 	
@@ -370,9 +370,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		
 		TaskExecutor executor = null;
 		try {
-			if(StringUtils.isNotBlank(lockId)) {
-				JVMLockUtil.lock(lockId);
-			}
+			doLock();
 			
 			if(CollectionUtils.isEmpty(subtasks)) {
 				executor = lookupTaskExecutor(context);
@@ -381,12 +379,30 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 				execSubtasks(context);
 			}
 		}finally {
-			if(StringUtils.isNotBlank(lockId)) {
-				JVMLockUtil.unlock(lockId);
-			}
+			doUnlock();
 			
 			afterExecuteEnd(context, executor);
 			executeEnd = true;
+		}
+	}
+
+	private void doUnlock() {
+		if(StringUtils.isNotBlank(lockId)) {
+			for(String id : StringUtils.split(lockId, ",")) {
+				if(StringUtils.isNotBlank(id)) {
+					JVMLockUtil.unlock(StringUtils.trim(id));
+				}
+			}
+		}
+	}
+
+	private void doLock() {
+		if(StringUtils.isNotBlank(lockId)) {
+			for(String id : StringUtils.split(lockId, ",")) {
+				if(StringUtils.isNotBlank(id)) {
+					JVMLockUtil.lock(StringUtils.trim(id));
+				}
+			}
 		}
 	}
 

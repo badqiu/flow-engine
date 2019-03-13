@@ -16,7 +16,7 @@ public class JVMLockUtilTest {
 				ThreadUtil.sleepAtLeastIgnoreInterrupts(1000 * 10);
 				JVMLockUtil.unlock("badqiu_lock");
 			}
-		}).start();;
+		}).start();
 		
 		ThreadUtil.sleepAtLeastIgnoreInterrupts(1000);
 		
