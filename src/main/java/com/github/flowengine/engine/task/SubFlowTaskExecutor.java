@@ -22,7 +22,8 @@ public class SubFlowTaskExecutor implements TaskExecutor{
 		long start = System.currentTimeMillis();
 		FlowContext subFlowContext = flowContext.getFlowEngine().exec(flow, flowContext.getParams());
 		subFlowContext.awaitTermination();
-		logger.info("executed sub flow:"+flowId+" cost:"+(System.currentTimeMillis() - start));
+		long cost = System.currentTimeMillis() - start;
+		logger.info("executed sub flow:"+flowId+" cost seconds:"+(cost/1000));
 		return null;
 	}
 
