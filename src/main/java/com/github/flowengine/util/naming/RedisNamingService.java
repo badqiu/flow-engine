@@ -9,9 +9,6 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPubSub;
-
 import com.github.rapid.common.redis.RedisTemplate;
 
 public class RedisNamingService implements NamingService{
@@ -25,16 +22,16 @@ public class RedisNamingService implements NamingService{
 	private Map<String,List<NamingServiceListener>> listenerMap = new HashMap<String,List<NamingServiceListener>>();
 	private Notify notify;
 	
-	public RedisNamingService(JedisPool jedisPool) {
-		super();
-		this.redis = new RedisTemplate(jedisPool);
-	}
-	
-	public RedisNamingService(JedisPool jedisPool,int expirePeriod) {
-		super();
-		this.expirePeriod = expirePeriod;
-		this.redis = new RedisTemplate(jedisPool);
-	}
+//	public RedisNamingService(JedisPool jedisPool) {
+//		super();
+//		this.redis = new RedisTemplate(jedisPool);
+//	}
+//	
+//	public RedisNamingService(JedisPool jedisPool,int expirePeriod) {
+//		super();
+//		this.expirePeriod = expirePeriod;
+//		this.redis = new RedisTemplate(jedisPool);
+//	}
 
 	private Set<String> getLocalBind(String name) {
 		Set<String> urls = bindMap.get(name);
@@ -132,35 +129,25 @@ public class RedisNamingService implements NamingService{
 	public class Notify extends Thread {
 		
 		public void run() {
-			JedisPubSub jedisPubSub = new JedisPubSub(){
-				@Override
-				public void onMessage(String channel, String message) {
-					if(BIND.equals(message)) {
-						doNotify(channel);
-					}else if(UNBIND.equals(message)) {
-						doNotify(channel);
-					}
-				}
-				
-				@Override
-				public void onPMessage(String pattern, String channel,String message) {
-				}
-				@Override
-				public void onSubscribe(String channel, int subscribedChannels) {
-				}
-				@Override
-				public void onUnsubscribe(String channel, int subscribedChannels) {
-				}
-				@Override
-				public void onPUnsubscribe(String pattern,int subscribedChannels) {
-				}
-				@Override
-				public void onPSubscribe(String pattern, int subscribedChannels) {
-				}
-			};
+			throw new RuntimeException("not yet impl");
 			
-			String[] names = listenerMap.keySet().toArray(new String[0]);
-			redis.subscribe(jedisPubSub,names );
+//			JedisPubSub jedisPubSub = new JedisPubSub(){
+//				@Override
+//				public void onMessage(String channel, String message) {
+//					if(BIND.equals(message)) {
+//						doNotify(channel);
+//					}else if(UNBIND.equals(message)) {
+//						doNotify(channel);
+//					}
+//				}
+//				
+//				
+//				
+//				
+//			};
+//			
+//			String[] names = listenerMap.keySet().toArray(new String[0]);
+//			redis.subscribe(jedisPubSub,names );
 		}
 	}
 }

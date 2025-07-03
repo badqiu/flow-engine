@@ -1,7 +1,8 @@
 package com.github.flowengine.util;
 
-import org.apache.hadoop.util.ThreadUtil;
 import org.junit.Test;
+
+import com.github.rapid.common.util.ThreadUtil;
 
 public class JVMLockUtilTest {
 
@@ -13,13 +14,13 @@ public class JVMLockUtilTest {
 			public void run() {
 				JVMLockUtil.lock("badqiu_lock");
 				System.out.println("get lock on thread");
-				ThreadUtil.sleepAtLeastIgnoreInterrupts(1000 * 10);
+				ThreadUtil.sleep(1000 * 10);
 				JVMLockUtil.unlock("badqiu_lock");
 				System.out.println("Thread END");
 			}
 		}).start();
 		
-		ThreadUtil.sleepAtLeastIgnoreInterrupts(1000);
+		ThreadUtil.sleep(1000);
 		
 		JVMLockUtil.lock("badqiu_lock");
 		System.out.println("Main END");
