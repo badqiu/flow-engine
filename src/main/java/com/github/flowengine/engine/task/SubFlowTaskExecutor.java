@@ -26,6 +26,11 @@ public class SubFlowTaskExecutor implements TaskExecutor{
 	}
 
 	private void executeOneFlowId(FlowContext flowContext, String flowId) throws InterruptedException {
+		if(StringUtils.isBlank(flowId)) {
+			return;
+		}
+		
+		
 		flowId = StringUtils.trim(flowId);
 		logger.info("start exec sub flow:"+flowId);
 		
