@@ -528,6 +528,9 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 			}
 		}finally {
 			notifyListeners();
+			if(listenerable != null) {
+				listenerable.notifyListenersOnExecutedEnd(this);
+			}
 		}
 	}
 
@@ -568,7 +571,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		}
 	}
 	
-	public void notifyListeners() {
+	private void notifyListeners() {
 		if(listenerable != null) {
 			listenerable.notifyListeners(this, null);
 		}

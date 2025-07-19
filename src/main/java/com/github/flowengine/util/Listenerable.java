@@ -13,6 +13,12 @@ public class Listenerable <T>{
 		}
 	}
 	
+	public void notifyListenersOnExecutedEnd(T target) {
+		for(Listener<T> obj : listeners) {
+			obj.onExecutedEnd(target);
+		}
+	}
+	
 	public void addListener(Listener<T> t) {
 		listeners.add(t);
 	}
