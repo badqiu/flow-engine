@@ -180,6 +180,9 @@ public class FlowTaskDef <T extends GraphNode<?>> extends GraphNode<T> implement
 		this.preSleepTime = sleepTime;
 	}
 	public Integer getTimeout() {
+		if(timeout == null) {
+			return 0;
+		}
 		return timeout;
 	}
 	public void setTimeout(Integer timeout) {

@@ -322,7 +322,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 					try {
 						depend.exec_internal(context,true,execChilds);
 					}catch(Exception e) {
-						e.printStackTrace();
+						logger.error("execute FlowTask error,depend task:"+depend,e);
 					}finally {
 						dependsCountDownLatch.countDown();
 					}
