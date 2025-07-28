@@ -58,11 +58,34 @@ public class FlowEngine {
 		return exec(flow,flow.getNoDependNodes(),params);
 	}
 	
+	public FlowContext exec(Flow flow, List<FlowTask> tasks, FlowContext context) {
+		FlowTask.execAll(context, true, tasks, true);
+		return context;
+	}
+
+	public FlowContext execWithFlowTaskRunner(Flow flow, Map params) {
+		return execWithFlowTaskRunner(flow,flow.getNodes(),params);
+	}
+	
+	public FlowContext execWithFlowTaskRunner(Flow flow, List<FlowTask> tasks, Map params) {
+		FlowTaskRunner runner = new FlowTaskRunner(flow.getMaxParallel());
+		FlowContext context = newFlowContext(params, flow);
+		runner.schedule(tasks, context);
+		return context;
+	}
+	
+	
+	
+	
+	
+	
+	
 	/* exec by startTaskId */
 	public FlowContext exec(String flowId,String startTaskId,Map params) {
 		Flow flow = getRequiredFlow(flowId);
 		return exec(flow,startTaskId, params);
 	}
+	
 	
 	/* exec by startTaskId */
 	public FlowContext exec(Flow flow,String startTaskId, Map params) {
@@ -79,11 +102,7 @@ public class FlowEngine {
 		return context;
 	}
 	
-	public FlowContext exec(Flow flow, List<FlowTask> tasks, FlowContext context) {
-		FlowTask.execAll(context, true, tasks, true);
-		return context;
-	}
-
+	
 	private FlowContext newFlowContext(Map params, Flow flow) {
 		FlowContext context = new FlowContext();
 		context.setParams(params);
