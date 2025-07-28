@@ -21,6 +21,7 @@ public class FlowTest {
 
 	private Flow f = new Flow();
 	SystemOutTaskExecutor taskExecutor = new SystemOutTaskExecutor();
+	
 	@Before
 	public void setUp() {
 //		SystemOutTaskExecutor.execCount = 0;
@@ -110,7 +111,7 @@ public class FlowTest {
 		FlowTask t = new FlowTask("demo_task");
 		t.setDepends(StringUtils.join(parents,","));
 		t.setScriptType("groovy");
-		t.setScript("exec_count.incrementAndGet();System.out.println(getId()+'child exec before ---------');Thread.sleep(1000);System.out.println('child exec after');");
+		t.setScript("exec_count.incrementAndGet();System.out.println('child exec before ---------');Thread.sleep(1000);System.out.println('child exec after');");
 		f.addNode(t);
 		f.init();
 		

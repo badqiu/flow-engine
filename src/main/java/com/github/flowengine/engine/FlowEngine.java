@@ -48,19 +48,25 @@ public class FlowEngine {
 	}
 	
 	public FlowContext exec(Flow flow,List<FlowTask> tasks, Map params) {
-		Assert.isTrue(flow.getMaxParallel() > 0,"flow.getMaxParallel() > 0 must be true");
-		FlowContext context = newFlowContext(params, flow);
-		exec(flow, tasks, context);
-		return context;
+//		Assert.isTrue(flow.getMaxParallel() > 0,"flow.getMaxParallel() > 0 must be true");
+//		FlowContext context = newFlowContext(params, flow);
+//		exec(flow, tasks, context);
+//		return context;
+		
+		return execWithFlowTaskRunner(flow,tasks,params);
 	}
 	
 	public FlowContext exec(Flow flow, Map params) {
-		return exec(flow,flow.getNoDependNodes(),params);
+//		return exec(flow,flow.getNoDependNodes(),params);
+		
+		return execWithFlowTaskRunner(flow,flow.getNodes(),params);
 	}
 	
 	public FlowContext exec(Flow flow, List<FlowTask> tasks, FlowContext context) {
-		FlowTask.execAll(context, true, tasks, true);
-		return context;
+//		FlowTask.execAll(context, true, tasks, true);
+//		return context;
+		
+		return execWithFlowTaskRunner(flow,tasks,context);
 	}
 
 	public FlowContext execWithFlowTaskRunner(Flow flow, Map params) {
@@ -68,8 +74,12 @@ public class FlowEngine {
 	}
 	
 	public FlowContext execWithFlowTaskRunner(Flow flow, List<FlowTask> tasks, Map params) {
-		FlowTaskRunner runner = new FlowTaskRunner(flow.getMaxParallel());
 		FlowContext context = newFlowContext(params, flow);
+		return execWithFlowTaskRunner(flow,tasks,context);
+	}
+	
+	public FlowContext execWithFlowTaskRunner(Flow flow, List<FlowTask> tasks, FlowContext context) {
+		FlowTaskRunner runner = new FlowTaskRunner(flow.getMaxParallel());
 		runner.schedule(tasks, context);
 		return context;
 	}
