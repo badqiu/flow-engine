@@ -10,6 +10,7 @@ import com.github.flowengine.engine.TaskExecutor;
 import com.github.flowengine.model.Flow;
 import com.github.flowengine.model.FlowContext;
 import com.github.flowengine.model.FlowTask;
+import com.github.flowengine.util.SplitUtil;
 
 public class SubFlowTaskExecutor implements TaskExecutor{
 	private static Logger logger = LoggerFactory.getLogger(SubFlowTaskExecutor.class);
@@ -18,7 +19,7 @@ public class SubFlowTaskExecutor implements TaskExecutor{
 	public TaskExecResult exec(FlowTask task, FlowContext flowContext) throws InterruptedException {
 		Assert.notNull(task.getScript(),"script must be not blank");
 		
-		String[] flowIds = StringUtils.trim(task.getScript()).split(",");
+		String[] flowIds = SplitUtil.defaultSplit(task.getScript());
 		for(String flowId : flowIds) {
 			executeOneFlowId(flowContext, flowId);
 		}
