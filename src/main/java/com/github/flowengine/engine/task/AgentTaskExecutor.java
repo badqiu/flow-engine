@@ -8,7 +8,8 @@ import com.github.flowengine.model.FlowContext;
 import com.github.flowengine.model.FlowTask;
 
 /**
- * 通过agent执行的TaskExecutor
+ * 通过agent远程执行的TaskExecutor
+ * 
  * @author badqiu
  *
  */
