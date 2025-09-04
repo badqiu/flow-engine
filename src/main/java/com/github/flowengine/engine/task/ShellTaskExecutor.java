@@ -27,10 +27,10 @@ public class ShellTaskExecutor implements TaskExecutor{
 		Assert.hasText(shellScript,"shell script must be not blank");
 		
 		File shellFile = new File(tmpDir,"ShellTaskExecutor_"+DigestUtils.md5Hex(shellScript)+".sh");
-		FileUtils.writeStringToFile(shellFile, shellScript);
-		
-		logger.info("exec shell script:"+shellScript);
 		try {
+			FileUtils.writeStringToFile(shellFile, shellScript);
+		
+			logger.info("exec shell script:"+shellScript);
 			return CmdTaskExecutor.execCmd("/bin/bash " + shellFile.getAbsolutePath());
 		}finally {
 			FileUtils.deleteQuietly(shellFile);
