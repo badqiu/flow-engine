@@ -15,6 +15,7 @@ import com.github.flowengine.engine.task.CmdTaskExecutor;
 import com.github.flowengine.engine.task.GroovyTaskExecutor;
 import com.github.flowengine.engine.task.HttpTaskExecutor;
 import com.github.flowengine.engine.task.JavaScriptTaskExecutor;
+import com.github.flowengine.engine.task.JavaTaskExecutor;
 import com.github.flowengine.engine.task.NothingTaskExecutor;
 import com.github.flowengine.engine.task.ScriptTaskExecutor;
 import com.github.flowengine.engine.task.ShellTaskExecutor;
@@ -34,6 +35,7 @@ public class FlowEngine {
 		registerTaskExecutor("shell",new ShellTaskExecutor());
 		registerTaskExecutor("nothing",new NothingTaskExecutor());
 		
+		registerTaskExecutor("java",new JavaTaskExecutor());
 		registerTaskExecutor("groovy",new GroovyTaskExecutor());
 		registerTaskExecutor("script",new ScriptTaskExecutor());
 		registerTaskExecutor("javascript",new JavaScriptTaskExecutor());
