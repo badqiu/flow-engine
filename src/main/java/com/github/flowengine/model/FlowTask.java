@@ -59,6 +59,7 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 	 */
 	private String lockId;
 	
+	private boolean lock;
 	/**
      * 任务执行耗时       
      */ 	
@@ -257,6 +258,14 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 
 	public void setLockId(String lockId) {
 		this.lockId = lockId;
+	}
+	
+	public boolean isLock() {
+		return lock;
+	}
+
+	public void setLock(boolean lock) {
+		this.lock = lock;
 	}
 
 	public List<FlowTask> getSubtasks() {
@@ -602,6 +611,13 @@ public class FlowTask extends FlowTaskDef<FlowTask> implements Comparable<FlowTa
 		if(isEnabled() == null) {
 			setEnabled(true);
 		}
+		
+		if(lock) {
+			if(StringUtils.isBlank(lockId)) {
+				lockId = getClass().getName() + "_lock_" + getId();
+			}
+		}
+		
 	}
 	
 	

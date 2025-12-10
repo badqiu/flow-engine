@@ -32,6 +32,8 @@ public class Flow extends FlowDef<FlowTask>{
 	
 	private Map context = new HashMap();
 	
+	private boolean lock;
+	
 	public Flow() {
 	}
 	
@@ -162,4 +164,13 @@ public class Flow extends FlowDef<FlowTask>{
 	public void setContext(Map context) {
 		this.context = context;
 	}
+
+	public boolean isLock() {
+		return lock;
+	}
+
+	public void setLock(boolean lock) {
+		this.lock = lock;
+	}
+	
 }
