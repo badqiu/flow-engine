@@ -134,6 +134,14 @@ public class FlowDef <T extends GraphNode> extends Graph<T> implements Serializa
 	public void setDefaultScriptType(String defaultScriptType) {
 		this.defaultScriptType = defaultScriptType;
 	}
+	
+	public String getCron() {
+		return cron;
+	}
+
+	public void setCron(String cron) {
+		this.cron = cron;
+	}
 
 	public T clone() {
 		try {
